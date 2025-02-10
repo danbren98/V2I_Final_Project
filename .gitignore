@@ -1,0 +1,13 @@
+
+PaR/db
+PaR/incremental_db
+PaR/simulation
+PaR/output_files/*
+PaR/*.rpt
+# PaR/*.qpf
+# PaR/*.qsf
+
+!PaR/output_files/*.pin
+!PaR/output_files/*.sof
+!PaR/*.sdc
+!PaR/Project_Build.tcl

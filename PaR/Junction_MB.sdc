@@ -1,0 +1,1 @@
+create_clock -period 20.000 -name SYS_CLK
