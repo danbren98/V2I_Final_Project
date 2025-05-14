@@ -2,6 +2,7 @@
 PaR/db
 PaR/incremental_db
 PaR/simulation
+PaR/greybox_tmp
 PaR/output_files/*
 PaR/*.rpt
 # PaR/*.qpf
