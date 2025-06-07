@@ -7,6 +7,7 @@ PaR/output_files/*
 PaR/*.rpt
 # PaR/*.qpf
 # PaR/*.qsf
+PaR/*.qdf
 
 !PaR/output_files/*.pin
 !PaR/output_files/*.sof
