@@ -4,6 +4,9 @@ library IEEE;
 
 package global_package is
 
+	type stdarray is array (natural range <>) of std_logic_vector;
+
+
 	function	ceil_log2	(input	:	positive) return natural;
 
 end global_package;

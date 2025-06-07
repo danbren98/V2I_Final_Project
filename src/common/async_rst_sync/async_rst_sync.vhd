@@ -5,7 +5,7 @@ entity async_rst_sync is
 	generic	(
 				polin		:	std_logic;	--	Polarity of input reset
 				polout		:	std_logic;	--	Polarity of output reset
-				stages		:	positive
+				stages		:	positive	--	Number of reset stage
 			);
 	port	(
 				arst_in		:	in	std_logic;
