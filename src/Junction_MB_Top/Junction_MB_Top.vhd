@@ -52,8 +52,9 @@ end entity Junction_MB_Top;
 
 architecture rtl of Junction_MB_Top is
 
-	signal	sys_rstn_deb		:	std_logic;
-	signal	global_reset		:	std_logic;
+	signal	clk_200				:	std_logic;
+	signal	reset_200			:	std_logic;
+	signal	main_pll_locked		:	std_logic;
 
 	signal	spi_north_valid		:	std_logic;
 	signal	spi_north_speed		:	std_logic_vector(8-1 downto 0);
@@ -91,30 +92,15 @@ architecture rtl of Junction_MB_Top is
 
 begin
 	
-	SYS_RSTN_Debouncer: entity work.debouncer
-		generic map	(
-						polarity	=>	'0',	--:	std_logic;
-						time_out_w	=>	16,		--:	positive;
-						timeout		=>	50_000	--:	natural
-					)
+	Clock_Generator_Inst: entity work.clock_generator
 		port map	(
-						clk_in		=>	SYS_CLK,		--:	in	std_logic;
+						arst		=>	SYS_RSTN,			--:	in	std_logic;
+						refclk		=>	SYS_CLK,			--:	in	std_logic;
 
-						sig_in		=>	SYS_RSTN,		--:	in	std_logic;
-						sig_out		=>	sys_rstn_deb	--:	out	std_logic
-					);
-	
-	SYS_RST_Synchronizer: entity work.async_rst_sync
-		generic map	(
-						polin	=>	'0',	--:	std_logic;	--	Polarity of input reset
-						polout	=>	'1',	--:	std_logic;	--	Polarity of output reset
-						stages	=>	3		--:	positive;	--	Number of reset stages
-					)
-		port map	(
-						arst_in		=>	sys_rstn_deb,	--:	in	std_logic;
-						clk_in		=>	SYS_CLK,		--:	in	std_logic;
-		
-						arst_out	=>	global_reset	--:	out	std_logic
+						locked		=>	main_pll_locked,	--:	out	std_logic;
+
+						clk_200		=>	clk_200,			--:	out	std_logic;
+						reset_200	=>	reset_200			--:	out	std_logic
 					);
 	
 --	Region WiFi Modules Interface	
@@ -125,8 +111,8 @@ begin
 						power_bw	=>	8	--:	positive;
 					)
 		port map	(
-						app_clk		=>	SYS_CLK,			--:	in	std_logic;
-						app_rst		=>	global_reset,		--:	in	std_logic;
+						app_clk		=>	clk_200,			--:	in	std_logic;
+						app_rst		=>	reset_200,			--:	in	std_logic;
 
 						valid_out	=>	spi_north_valid,	--:	out	std_logic;
 						speed_out	=>	spi_north_speed,	--:	out	std_logic_vector(speed_bw-1 downto 0);
@@ -144,8 +130,8 @@ begin
 						power_bw	=>	8	--:	positive;
 					)
 		port map	(
-						app_clk		=>	SYS_CLK,			--:	in	std_logic;
-						app_rst		=>	global_reset,		--:	in	std_logic;
+						app_clk		=>	clk_200,			--:	in	std_logic;
+						app_rst		=>	reset_200,			--:	in	std_logic;
 
 						valid_out	=>	spi_south_valid,	--:	out	std_logic;
 						speed_out	=>	spi_south_speed,	--:	out	std_logic_vector(speed_bw-1 downto 0);
@@ -163,8 +149,8 @@ begin
 						power_bw	=>	8	--:	positive;
 					)
 		port map	(
-						app_clk		=>	SYS_CLK,		--:	in	std_logic;
-						app_rst		=>	global_reset,	--:	in	std_logic;
+						app_clk		=>	clk_200,		--:	in	std_logic;
+						app_rst		=>	reset_200,		--:	in	std_logic;
 						
 						valid_out	=>	spi_east_valid,	--:	out	std_logic;
 						speed_out	=>	spi_east_speed,	--:	out	std_logic_vector(speed_bw-1 downto 0);
@@ -182,8 +168,8 @@ begin
 						power_bw	=>	8	--:	positive;
 					)
 		port map	(
-						app_clk		=>	SYS_CLK,		--:	in	std_logic;
-						app_rst		=>	global_reset,	--:	in	std_logic;
+						app_clk		=>	clk_200,		--:	in	std_logic;
+						app_rst		=>	reset_200,		--:	in	std_logic;
 						
 						valid_out	=>	spi_west_valid,	--:	out	std_logic;
 						speed_out	=>	spi_west_speed,	--:	out	std_logic_vector(speed_bw-1 downto 0);
@@ -194,103 +180,103 @@ begin
 						mosi		=>	MOSI_WEST,		--:	in	std_logic;
 						miso		=>	MISO_WEST		--:	out	std_logic;
 					);
---	
-
---	Region Arrival Time Calcilators
-
-	arrival_time_calc_north: entity work.arrival_time_calc
-		generic map	(
-						speed_bw	=>	8,	--:	positive;
-						power_bw	=>	8,	--:	positive;
-						time_bw		=>	8	--:	positive;
-					)
-		port map	(
-						app_clk			=>	SYS_CLK,			--:	in	std_logic;
-						app_rst			=>	global_reset,		--:	in	std_logic;
-
-						valid_in		=>	spi_north_valid,	--:	in	std_logic;
-						speed_in		=>	spi_north_speed,	--:	in	std_logic_vector(speed_bw-1 downto 0);
-						power_in		=>	spi_north_power,	--:	in	std_logic_vector(power_bw-1 downto 0);
-						
-						valid_out		=>	north_time_valid,	--:	out	std_logic;
-						arrival_time	=>	north_time			--:	out	std_logic_vector(time_bw-1 downto 0);
-					);
-
-	arrival_time_calc_south: entity work.arrival_time_calc
-		generic map	(
-						speed_bw	=>	8,	--:	positive;
-						power_bw	=>	8,	--:	positive;
-						time_bw		=>	8	--:	positive;
-					)
-		port map	(
-						app_clk			=>	SYS_CLK,			--:	in	std_logic;
-						app_rst			=>	global_reset,		--:	in	std_logic;
-
-						valid_in		=>	spi_south_valid,	--:	in	std_logic;
-						speed_in		=>	spi_south_speed,	--:	in	std_logic_vector(speed_bw-1 downto 0);
-						power_in		=>	spi_south_power,	--:	in	std_logic_vector(power_bw-1 downto 0);
-						
-						valid_out		=>	south_time_valid,	--:	out	std_logic;
-						arrival_time	=>	south_time			--:	out	std_logic_vector(time_bw-1 downto 0);
-					);
-	
-	arrival_time_calc_east: entity work.arrival_time_calc
-		generic map	(
-						speed_bw	=>	8,	--:	positive;
-						power_bw	=>	8,	--:	positive;
-						time_bw		=>	8	--:	positive;
-					)
-		port map	(
-						app_clk			=>	SYS_CLK,			--:	in	std_logic;
-						app_rst			=>	global_reset,		--:	in	std_logic;
-
-						valid_in		=>	spi_east_valid,		--:	in	std_logic;
-						speed_in		=>	spi_east_speed,		--:	in	std_logic_vector(speed_bw-1 downto 0);
-						power_in		=>	spi_east_power,		--:	in	std_logic_vector(power_bw-1 downto 0);
-						
-						valid_out		=>	east_time_valid,	--:	out	std_logic;
-						arrival_time	=>	east_time			--:	out	std_logic_vector(time_bw-1 downto 0);
-				);
-	
-	arrival_time_calc_west: entity work.arrival_time_calc
-		generic map	(
-						speed_bw	=>	8,	--:	positive;
-						power_bw	=>	8,	--:	positive;
-						time_bw		=>	8	--:	positive;
-					)
-		port map	(
-						app_clk			=>	SYS_CLK,			--:	in	std_logic;
-						app_rst			=>	global_reset,		--:	in	std_logic;
-
-						valid_in		=>	spi_west_valid,		--:	in	std_logic;
-						speed_in		=>	spi_west_speed,		--:	in	std_logic_vector(speed_bw-1 downto 0);
-						power_in		=>	spi_west_power,		--:	in	std_logic_vector(power_bw-1 downto 0);
-						
-						valid_out		=>	west_time_valid,	--:	out	std_logic;
-						arrival_time	=>	west_time			--:	out	std_logic_vector(time_bw-1 downto 0);
-					);
 --
 
---	Region Main Controller
+-- --	Region Arrival Time Calcilators
 
-mctrl_valid_in	<=	west_time_valid & east_time_valid & south_time_valid & north_time_valid;
-mctrl_time_in	<=	west_time & east_time & south_time & north_time;
+-- 	arrival_time_calc_north: entity work.arrival_time_calc
+-- 		generic map	(
+-- 						speed_bw	=>	8,	--:	positive;
+-- 						power_bw	=>	8,	--:	positive;
+-- 						time_bw		=>	8	--:	positive;
+-- 					)
+-- 		port map	(
+-- 						app_clk			=>	clk_200,			--:	in	std_logic;
+-- 						app_rst			=>	reset_200,			--:	in	std_logic;
 
-main_controller_ist: entity work.main_controller
-	generic map	(
-					time_bw		=>	8	--:	positive;
-				)
-	port map	(
-					app_clk						=>	SYS_CLK,		--:	in	std_logic;
-					app_rst						=>	global_reset,	--:	in	std_logic;
+-- 						valid_in		=>	spi_north_valid,	--:	in	std_logic;
+-- 						speed_in		=>	spi_north_speed,	--:	in	std_logic_vector(speed_bw-1 downto 0);
+-- 						power_in		=>	spi_north_power,	--:	in	std_logic_vector(power_bw-1 downto 0);
+						
+-- 						valid_out		=>	north_time_valid,	--:	out	std_logic;
+-- 						arrival_time	=>	north_time			--:	out	std_logic_vector(time_bw-1 downto 0);
+-- 					);
 
-					valid_in					=>	mctrl_valid_in,	--:	in	std_logic_vector(4-1 downto 0);
-					time_in						=>	mctrl_time_in,	--:	in	std_logic_vector(4*time_bw-1 downto 0);
+-- 	arrival_time_calc_south: entity work.arrival_time_calc
+-- 		generic map	(
+-- 						speed_bw	=>	8,	--:	positive;
+-- 						power_bw	=>	8,	--:	positive;
+-- 						time_bw		=>	8	--:	positive;
+-- 					)
+-- 		port map	(
+-- 						app_clk			=>	clk_200,			--:	in	std_logic;
+-- 						app_rst			=>	reset_200,			--:	in	std_logic;
+
+-- 						valid_in		=>	spi_south_valid,	--:	in	std_logic;
+-- 						speed_in		=>	spi_south_speed,	--:	in	std_logic_vector(speed_bw-1 downto 0);
+-- 						power_in		=>	spi_south_power,	--:	in	std_logic_vector(power_bw-1 downto 0);
+						
+-- 						valid_out		=>	south_time_valid,	--:	out	std_logic;
+-- 						arrival_time	=>	south_time			--:	out	std_logic_vector(time_bw-1 downto 0);
+-- 					);
+	
+-- 	arrival_time_calc_east: entity work.arrival_time_calc
+-- 		generic map	(
+-- 						speed_bw	=>	8,	--:	positive;
+-- 						power_bw	=>	8,	--:	positive;
+-- 						time_bw		=>	8	--:	positive;
+-- 					)
+-- 		port map	(
+-- 						app_clk			=>	clk_200,			--:	in	std_logic;
+-- 						app_rst			=>	reset_200,			--:	in	std_logic;
+
+-- 						valid_in		=>	spi_east_valid,		--:	in	std_logic;
+-- 						speed_in		=>	spi_east_speed,		--:	in	std_logic_vector(speed_bw-1 downto 0);
+-- 						power_in		=>	spi_east_power,		--:	in	std_logic_vector(power_bw-1 downto 0);
+						
+-- 						valid_out		=>	east_time_valid,	--:	out	std_logic;
+-- 						arrival_time	=>	east_time			--:	out	std_logic_vector(time_bw-1 downto 0);
+-- 				);
+	
+-- 	arrival_time_calc_west: entity work.arrival_time_calc
+-- 		generic map	(
+-- 						speed_bw	=>	8,	--:	positive;
+-- 						power_bw	=>	8,	--:	positive;
+-- 						time_bw		=>	8	--:	positive;
+-- 					)
+-- 		port map	(
+-- 						app_clk			=>	clk_200,			--:	in	std_logic;
+-- 						app_rst			=>	reset_200,			--:	in	std_logic;
+
+-- 						valid_in		=>	spi_west_valid,		--:	in	std_logic;
+-- 						speed_in		=>	spi_west_speed,		--:	in	std_logic_vector(speed_bw-1 downto 0);
+-- 						power_in		=>	spi_west_power,		--:	in	std_logic_vector(power_bw-1 downto 0);
+						
+-- 						valid_out		=>	west_time_valid,	--:	out	std_logic;
+-- 						arrival_time	=>	west_time			--:	out	std_logic_vector(time_bw-1 downto 0);
+-- 					);
+-- --
+
+-- --	Region Main Controller
+
+-- mctrl_valid_in	<=	west_time_valid & east_time_valid & south_time_valid & north_time_valid;
+-- mctrl_time_in	<=	west_time & east_time & south_time & north_time;
+
+-- main_controller_ist: entity work.main_controller
+-- 	generic map	(
+-- 					time_bw		=>	8	--:	positive;
+-- 				)
+-- 	port map	(
+-- 					app_clk						=>	clk_200,		--:	in	std_logic;
+-- 					app_rst						=>	reset_200,		--:	in	std_logic;
+
+-- 					valid_in					=>	mctrl_valid_in,	--:	in	std_logic_vector(4-1 downto 0);
+-- 					time_in						=>	mctrl_time_in,	--:	in	std_logic_vector(4*time_bw-1 downto 0);
 					
-					traffic_light_out_red		=>	mctrl_trflt_r,	--:	out	std_logic_vector(4-1 downto 0);
-					traffic_light_out_yellow	=>	mctrl_trflt_y,	--:	out	std_logic_vector(4-1 downto 0);
-					traffic_light_out_green		=>	mctrl_trflt_g	--:	out	std_logic_vector(4-1 downto 0);
-				);
+-- 					traffic_light_out_red		=>	mctrl_trflt_r,	--:	out	std_logic_vector(4-1 downto 0);
+-- 					traffic_light_out_yellow	=>	mctrl_trflt_y,	--:	out	std_logic_vector(4-1 downto 0);
+-- 					traffic_light_out_green		=>	mctrl_trflt_g	--:	out	std_logic_vector(4-1 downto 0);
+-- 				);
 
 	TRAFFIC_LIGHT_RED_NORTH		<=	mctrl_trflt_r(0);
 	TRAFFIC_LIGHT_YELLOW_NORTH	<=	mctrl_trflt_y(0);
@@ -309,12 +295,12 @@ main_controller_ist: entity work.main_controller
 	TRAFFIC_LIGHT_GREEN_WEST	<=	mctrl_trflt_g(3);
 --
 
-	User_LEDs_Driver_p: process(global_reset, SYS_CLK)
+	User_LEDs_Driver_p: process(reset_200, clk_200)
 	begin
-		if (global_reset = '1') then
+		if (reset_200 = '1') then
 			USER_LEDS	<=	(others => '0');
-		elsif (rising_edge(SYS_CLK)) then
-			USER_LEDS	<=	(others => '1');
+		elsif (rising_edge(clk_200)) then
+			USER_LEDS	<=	(others => main_pll_locked);
 		end if;
 	end process User_LEDs_Driver_p;
 

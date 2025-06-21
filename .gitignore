@@ -2,6 +2,7 @@
 PaR/db
 PaR/incremental_db
 PaR/simulation
+PaR/mentor
 PaR/greybox_tmp
 PaR/output_files/*
 PaR/*.rpt
@@ -13,3 +14,8 @@ PaR/*.qdf
 !PaR/output_files/*.sof
 !PaR/*.sdc
 !PaR/Project_Build.tcl
+
+sim/work
+sim/*.mti
+sim/*.mpf
+sim/transcript

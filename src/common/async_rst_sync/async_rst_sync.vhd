@@ -23,10 +23,10 @@ begin
 
 	process(arst_in, clk_in)
 	begin
-		if (arst_in = polin) then
-			arst_out_reg	<=	(others => polout);
+		if (arst_in = '0') then
+			arst_out_reg	<=	(others => '1');
 		elsif (rising_edge(clk_in)) then
-			arst_out_reg	<=	arst_out_reg(arst_out_reg'high-1 downto 0) & (not polout);
+			arst_out_reg	<=	arst_out_reg(arst_out_reg'high-1 downto 0) & '0';
 		end if;
 	end process;
 

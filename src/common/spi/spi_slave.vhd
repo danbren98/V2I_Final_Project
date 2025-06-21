@@ -44,9 +44,12 @@ begin
     spi_rx_interface_p:
         process(ss_n, sclk)
         begin
-            if (falling_edge(sclk)) then
+            if (ss_n = '1') then
+                bit_counter     <=  (others => '0');
+                rxbuffer_valid  <=  '0';
+            elsif (rising_edge(sclk)) then
                 rxbuffer    <=  rxbuffer(rxbuffer'high-1 downto 0) & mosi;
-
+                
                 if (bit_counter = data_width-1) then
                     bit_counter     <=  (others => '0');
                     rxbuffer_valid  <=  '1';
@@ -54,11 +57,6 @@ begin
                     bit_counter     <=  bit_counter + 1;
                     rxbuffer_valid  <=  '0';
                 end if;
-            end if;
-
-            if (ss_n = '0') then
-                bit_counter     <=  (others => '0');
-                rxbuffer_valid  <=  '0';
             end if;
         end process;
 
@@ -99,16 +97,14 @@ begin
     spi_tx_interface_p:
         process(ss_n, sclk)
         begin
-            if (rising_edge(sclk)) then
+            if (ss_n = '1') then
+                txbuffer    <=  (others => '0');
+            elsif (falling_edge(sclk)) then
                 if (load_txbuffer = '1') then
                     txbuffer    <=  txbuffer_s;
                 else
                     txbuffer    <=  txbuffer(txbuffer'high-1 downto 0) & '0';
                 end if;
-            end if;
-
-            if (ss_n = '0') then
-                txbuffer    <=  (others => '0');
             end if;
         end process;
     

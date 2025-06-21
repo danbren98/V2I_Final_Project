@@ -18,36 +18,78 @@ end entity debouncer;
 
 architecture rtl of debouncer is
 
-	signal	sig_in_sync	:	std_logic_vector(1 downto 0)	:=	(others => polarity);
-	signal	sig_in_s	:	std_logic						:=	polarity;
-	signal	sig_in_stbl	:	std_logic;
-	signal	timer		:	unsigned(time_out_w-1 downto 0)	:=	(others => '0');
+	type dbnc_states is (st_idle, st_press, st_release);
 
+	signal	dbnc_sm		:	dbnc_states;
+	
+	signal	sig_in_sync	:	std_logic_vector(1 downto 0)	:=	(others => not polarity);
+	signal	timer		:	unsigned(time_out_w-1 downto 0)	:=	(others => '0');
+	signal	sig_out_int	:	std_logic						:=	not polarity;
 
 begin
 
-	sig_in_stbl	<=	sig_in_s xnor sig_in_sync(sig_in_sync'high);
-	
-	process(clk_in)
-	begin
-		if (rising_edge(clk_in)) then
-			sig_in_sync	<=	sig_in_sync(0) & sig_in;
-			sig_in_s	<=	sig_in_sync(sig_in_sync'high);
+	Debounce_p:
+		process(clk_in)
+		begin
+			if (rising_edge(clk_in)) then
+				sig_in_sync	<=	sig_in_sync(sig_in_sync'high-1 downto 0) & sig_in;
+				
+				case dbnc_sm is
+					when st_idle =>
+						sig_out_int	<=	not polarity;
 
-			if (sig_in_stbl = '1') then
-				if (timer < timeout) then
-					timer	<=	timer + 1;
-				end if;
-			else
-				timer	<=	(others => '0');
+						if (sig_in_sync(sig_in_sync'high) = polarity) then
+							if (timer < timeout) then
+								timer	<=	timer + 1;
+							else
+								timer	<=	(others => '0');
+							end if;
+						else
+							timer	<=	(others => '0');
+						end if;
+
+						if (timer = timeout) then
+							dbnc_sm	<=	st_press;
+						end if;
+
+					when st_press =>
+						sig_out_int	<= polarity;
+
+						if (sig_in_sync(sig_in_sync'high) = not polarity) then
+							if (timer < timeout) then
+								timer	<=	timer + 1;
+							else
+								timer	<=	(others => '0');
+							end if;
+						else
+							timer	<=	(others => '0');
+						end if;
+
+						if (timer = timeout) then
+							dbnc_sm	<=	st_release;
+						end if;
+
+					when st_release =>
+						sig_out_int	<=	not polarity;
+						
+						if (timer < timeout) then
+							timer	<=	timer + 1;
+						else
+							timer	<=	(others => '0');
+						end if;
+						
+						if (timer = timeout) then
+							dbnc_sm	<=	st_idle;
+						end if;
+
+					when others =>
+						sig_out_int	<=	not polarity;
+						timer		<=	(others => '0');
+						dbnc_sm		<=	st_idle;
+				end case;
 			end if;
-			
-			if (sig_in_stbl = '1') then
-				if (timer = timeout) then
-					sig_out	<=	sig_in_sync(sig_in_sync'high);
-				end if;
-			end if;
-		end if;
-	end process;
+		end process;
+
+	sig_out	<=	sig_out_int;
 
 end rtl;
