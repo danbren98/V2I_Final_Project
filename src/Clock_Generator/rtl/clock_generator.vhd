@@ -28,6 +28,7 @@ architecture rtl of clock_generator is
 	signal	pll_rst		:	std_logic;
 	signal	arst_deb	:	std_logic;
 	signal	clk_200_s	:	std_logic;
+	signal	locked_s	:	std_logic;
 
 begin
 
@@ -54,6 +55,8 @@ begin
 						locked	=>	locked		--: out std_logic
 					);
 
+	locked_s	<=	locked;
+
 	reset_200_sync: entity work.async_rst_sync
 		generic map	(
 						polin	=>	'0',	--:	std_logic;	--	Polarity of input reset
@@ -61,7 +64,7 @@ begin
 						stages	=>	3		--:	positive;	--	Number of reset stages
 					)
 		port map	(
-						arst_in		=>	locked,		--:	in	std_logic;
+						arst_in		=>	locked_s,	--:	in	std_logic;
 						clk_in		=>	clk_200_s,	--:	in	std_logic;
 		
 						arst_out	=>	reset_200	--:	out	std_logic
@@ -69,5 +72,6 @@ begin
 
 
 	clk_200	<=	clk_200_s;
+	locked	<=	locked_s;
 	
 end rtl;
