@@ -57,20 +57,20 @@ architecture rtl of Junction_MB_Top is
 	signal	main_pll_locked		:	std_logic;
 
 	signal	spi_north_valid		:	std_logic;
-	signal	spi_north_speed		:	std_logic_vector(8-1 downto 0);
-	signal	spi_north_power		:	std_logic_vector(8-1 downto 0);
+	signal	spi_north_speed		:	std_logic_vector(CAR_SPEED_BUS_WIDTH-1 downto 0);
+	signal	spi_north_power		:	std_logic_vector(RX_POWER_BUS_WIDTH-1 downto 0);
 	
 	signal	spi_south_valid		:	std_logic;
-	signal	spi_south_speed		:	std_logic_vector(8-1 downto 0);
-	signal	spi_south_power		:	std_logic_vector(8-1 downto 0);
+	signal	spi_south_speed		:	std_logic_vector(CAR_SPEED_BUS_WIDTH-1 downto 0);
+	signal	spi_south_power		:	std_logic_vector(RX_POWER_BUS_WIDTH-1 downto 0);
 	
 	signal	spi_east_valid		:	std_logic;
-	signal	spi_east_speed		:	std_logic_vector(8-1 downto 0);
-	signal	spi_east_power		:	std_logic_vector(8-1 downto 0);
+	signal	spi_east_speed		:	std_logic_vector(CAR_SPEED_BUS_WIDTH-1 downto 0);
+	signal	spi_east_power		:	std_logic_vector(RX_POWER_BUS_WIDTH-1 downto 0);
 
 	signal	spi_west_valid		:	std_logic;
-	signal	spi_west_speed		:	std_logic_vector(8-1 downto 0);
-	signal	spi_west_power		:	std_logic_vector(8-1 downto 0);
+	signal	spi_west_speed		:	std_logic_vector(CAR_SPEED_BUS_WIDTH-1 downto 0);
+	signal	spi_west_power		:	std_logic_vector(RX_POWER_BUS_WIDTH-1 downto 0);
 
 	signal	north_time_valid	:	std_logic;
 	signal	north_time			:	std_logic_vector(8-1 downto 0);
@@ -107,8 +107,9 @@ begin
 	
 	WiFi_North_Inst: entity work.spi_interface
 		generic map	(
-						speed_bw	=>	8,	--:	positive;
-						power_bw	=>	8	--:	positive;
+						carid_bw	=>	CAR_ID_BUS_WIDTH,		--:	positive;
+						speed_bw	=>	CAR_SPEED_BUS_WIDTH,	--:	positive;
+						power_bw	=>	RX_POWER_BUS_WIDTH		--:	positive;
 					)
 		port map	(
 						app_clk		=>	clk_200,			--:	in	std_logic;
@@ -126,8 +127,9 @@ begin
 
 	WiFi_South_Inst: entity work.spi_interface
 		generic map	(
-						speed_bw	=>	8,	--:	positive;
-						power_bw	=>	8	--:	positive;
+						carid_bw	=>	CAR_ID_BUS_WIDTH,		--:	positive;
+						speed_bw	=>	CAR_SPEED_BUS_WIDTH,	--:	positive;
+						power_bw	=>	RX_POWER_BUS_WIDTH		--:	positive;
 					)
 		port map	(
 						app_clk		=>	clk_200,			--:	in	std_logic;
@@ -145,8 +147,9 @@ begin
 
 	WiFi_East_Inst: entity work.spi_interface
 		generic map	(
-						speed_bw	=>	8,	--:	positive;
-						power_bw	=>	8	--:	positive;
+						carid_bw	=>	CAR_ID_BUS_WIDTH,		--:	positive;
+						speed_bw	=>	CAR_SPEED_BUS_WIDTH,	--:	positive;
+						power_bw	=>	RX_POWER_BUS_WIDTH		--:	positive;
 					)
 		port map	(
 						app_clk		=>	clk_200,		--:	in	std_logic;
@@ -164,8 +167,9 @@ begin
 
 	WiFi_West_Inst: entity work.spi_interface
 		generic map	(
-						speed_bw	=>	8,	--:	positive;
-						power_bw	=>	8	--:	positive;
+						carid_bw	=>	CAR_ID_BUS_WIDTH,		--:	positive;
+						speed_bw	=>	CAR_SPEED_BUS_WIDTH,	--:	positive;
+						power_bw	=>	RX_POWER_BUS_WIDTH		--:	positive;
 					)
 		port map	(
 						app_clk		=>	clk_200,		--:	in	std_logic;

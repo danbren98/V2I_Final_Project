@@ -11,7 +11,7 @@ entity spi_slave is
             );
     port    (
                 user_clk        :   in  std_logic;                                  -- user clock. user interface is synced to it.
-                user_rstn       :   in  std_logic;                                  -- asynchronous active low reset
+                user_rst        :   in  std_logic;                                  -- asynchronous active low reset
                 
                 user_valid_tx   :   in  std_logic;                                  -- data to trasmit is valid
                 user_data_tx    :   in  std_logic_vector(data_width-1 downto 0);    -- data to transmit
@@ -34,48 +34,72 @@ architecture behavioural of spi_slave is
     constant dw_log2    :   positive    :=  ceil_log2(data_width);
     
     signal  bit_counter     :   unsigned(dw_log2-1 downto 0)                :=  (others => '0');
-    signal  rxbuffer_valid  :   std_logic;
     signal  rxbuffer        :   std_logic_vector(data_width-1 downto 0)     :=  (others => '0');    --receiver buffer
     signal  load_txbuffer   :   std_logic;
     signal  txbuffer_s      :   std_logic_vector(data_width-1 downto 0)     :=  (others => '0');
     signal  txbuffer        :   std_logic_vector(data_width-1 downto 0)     :=  (others => '0');    --transmit buffer
+
+    signal  ssn_synced      :   std_logic;
+    signal  ssn_synced_s    :   std_logic                                   :=  '0';
+    signal  ssn_synced_re   :   std_logic;
+    signal  ssn_synced_fe   :   std_logic;
+    signal  ssn_filter      :   std_logic                                   :=  '0';
+
 begin
+    
+    SSN_Sync: entity work.level_sync
+        generic map (
+                        stages  =>  2               --:   positive
+                    )
+        port map    (
+                        signal_in   =>  ss_n,       --:   in  std_logic;
+
+                        clk_out     =>  user_clk,   --:   in  std_logic;
+                        rst_out     =>  user_rst,   --:   in  std_logic;
+                        signal_out  =>  ssn_synced  --:   out std_logic
+                    );
 
     spi_rx_interface_p:
         process(ss_n, sclk)
         begin
             if (ss_n = '1') then
                 bit_counter     <=  (others => '0');
-                rxbuffer_valid  <=  '0';
             elsif (rising_edge(sclk)) then
                 rxbuffer    <=  rxbuffer(rxbuffer'high-1 downto 0) & mosi;
                 
                 if (bit_counter = data_width-1) then
                     bit_counter     <=  (others => '0');
-                    rxbuffer_valid  <=  '1';
                 else
                     bit_counter     <=  bit_counter + 1;
-                    rxbuffer_valid  <=  '0';
                 end if;
             end if;
         end process;
+    
+    ssn_synced_re   <=  '1' when ssn_synced_s = '0' and ssn_synced = '1' else '0';
+    ssn_synced_fe   <=  '1' when ssn_synced_s = '1' and ssn_synced = '0' else '0';
+    
+    User_Output_p:
+        process (user_rst, user_clk) is
+        begin
+            if (rising_edge(user_clk)) then
+                ssn_synced_s    <=  ssn_synced;
+                
+                if (ssn_synced_fe = '1') then
+                    ssn_filter  <=  '1';
+                elsif (ssn_synced_re = '1') then
+                    ssn_filter  <=  '0';
+                end if;
 
-    rxbuffer_sync: entity work.bus_sync
-        generic map (
-                        data_width	=>  data_width  --:	positive
-                    )
-        port map    (
-                        clk_in      =>  sclk,           --: in  std_logic;
-                        rst_in      =>  not ss_n,       --: in  std_logic;
-                        valid_in    =>  rxbuffer_valid, --: in  std_logic;
-                        data_in     =>  rxbuffer,       --: in  std_logic_vector(data_width-1 downto 0);
-                        busy        =>  open,           --: out std_logic;
-
-                        clk_out     =>  user_clk,       --: in  std_logic;
-                        rst_out     =>  user_rstn,      --: in  std_logic;
-                        valid_out   =>  user_valid_rx,  --: out std_logic;
-                        data_out    =>  user_data_rx    --: out std_logic_vector(data_width-1 downto 0);
-                    );
+                user_valid_rx   <=  ssn_filter and ssn_synced_re;
+                user_data_rx    <=  rxbuffer;
+            end if;
+            
+            if (user_rst = '1') then
+                user_valid_rx   <=  '0';
+                ssn_synced_s    <=  '0';
+                ssn_filter      <=  '0';
+            end if;
+        end process;
     
     txbuffer_sync: entity work.bus_sync
         generic map (
@@ -83,13 +107,13 @@ begin
                     )
         port map    (
                         clk_in      =>  user_clk,       --: in  std_logic;
-                        rst_in      =>  user_rstn,      --: in  std_logic;
+                        rst_in      =>  user_rst,       --: in  std_logic;
                         valid_in    =>  user_valid_tx,  --: in  std_logic;
                         data_in     =>  user_data_tx,   --: in  std_logic_vector(data_width-1 downto 0);
                         busy        =>  open,           --: out std_logic;
 
                         clk_out     =>  sclk,           --: in  std_logic;
-                        rst_out     =>  not ss_n,       --: in  std_logic;
+                        rst_out     =>  ss_n,           --: in  std_logic;
                         valid_out   =>  load_txbuffer,  --: out std_logic;
                         data_out    =>  txbuffer_s      --: out std_logic_vector(data_width-1 downto 0);
                     );   

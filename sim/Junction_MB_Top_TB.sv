@@ -77,19 +77,45 @@ initial begin
 	start_north = 0; start_south = 0; start_east = 0; start_west = 0;
 	#150_000; @(posedge sys_clk);
 
+	tx_north = 16'b1000001010101110;
+	start_north = 1; @(posedge sys_clk); start_north = 0;
+	wait(done_north); repeat (10) @(posedge sys_clk);
+	tx_north = 16'b1000001100100011;
+	start_north = 1; @(posedge sys_clk); start_north = 0;
+	wait(done_north); repeat (10) @(posedge sys_clk);
+	tx_north = 16'b1000010000010100;
+	start_north = 1; @(posedge sys_clk); start_north = 0;
+	wait(done_north); repeat (10) @(posedge sys_clk);
 
-	start_north = 1; @(posedge sys_clk);; start_north = 0;
-	wait(done_north); $display("North RX: %02h", rx_north);
+	tx_south = 16'b1000001010101110;
+	start_south = 1; @(posedge sys_clk); start_south = 0;
+	wait(done_south); repeat (10) @(posedge sys_clk);
+	tx_south = 16'b1000001100100011;
+	start_south = 1; @(posedge sys_clk); start_south = 0;
+	wait(done_south); repeat (10) @(posedge sys_clk);
+	tx_south = 16'b1000010000010100;
+	start_south = 1; @(posedge sys_clk); start_south = 0;
+	wait(done_south); repeat (10) @(posedge sys_clk);
 
-	start_south = 1; @(posedge sys_clk);; start_south = 0;
-	wait(done_south); $display("South RX: %02h", rx_south);
+	tx_east = 16'b1000001010101110;
+	start_east = 1; @(posedge sys_clk); start_east = 0;
+	wait(done_east); repeat (10) @(posedge sys_clk);
+	tx_east = 16'b1000001100100011;
+	start_east = 1; @(posedge sys_clk); start_east = 0;
+	wait(done_east); repeat (10) @(posedge sys_clk);
+	tx_east = 16'b1000010000010100;
+	start_east = 1; @(posedge sys_clk); start_east = 0;
+	wait(done_east); repeat (10) @(posedge sys_clk);
 
-	start_east = 1; @(posedge sys_clk);; start_east = 0;
-	wait(done_east); $display("East RX: %02h", rx_east);
-
-	start_west = 1; @(posedge sys_clk);; start_west = 0;
-	wait(done_west); $display("West RX: %02h", rx_west);
-
+	tx_west = 16'b1000001010101110;
+	start_west = 1; @(posedge sys_clk); start_west = 0;
+	wait(done_west); repeat (10) @(posedge sys_clk);
+	tx_west = 16'b1000001100100011;
+	start_west = 1; @(posedge sys_clk); start_west = 0;
+	wait(done_west); repeat (10) @(posedge sys_clk);
+	tx_west = 16'b1000010000010100;
+	start_west = 1; @(posedge sys_clk); start_west = 0;
+	wait(done_west); repeat (10) @(posedge sys_clk);
 	
 end
 

@@ -4,11 +4,15 @@ library IEEE;
 
 package global_package is
 
+	constant CAR_ID_BUS_WIDTH		:	natural	:=	8;
+	constant CAR_SPEED_BUS_WIDTH	:	natural	:=	8;
+	constant RX_POWER_BUS_WIDTH		:	natural	:=	8;
+
 	type stdarray is array (natural range <>) of std_logic_vector;
 
 
 	function	ceil_log2	(input	:	positive) return natural;
-
+	
 end global_package;
 
 package body global_package is
