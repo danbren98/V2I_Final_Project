@@ -7,6 +7,7 @@ package global_package is
 	constant CAR_ID_BUS_WIDTH		:	natural	:=	8;
 	constant CAR_SPEED_BUS_WIDTH	:	natural	:=	8;
 	constant RX_POWER_BUS_WIDTH		:	natural	:=	8;
+	constant ARRIVAL_TIME_WIDTH		:	natural	:=	16;
 
 	type stdarray is array (natural range <>) of std_logic_vector;
 

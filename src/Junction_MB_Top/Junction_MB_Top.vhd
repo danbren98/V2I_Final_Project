@@ -57,35 +57,43 @@ architecture rtl of Junction_MB_Top is
 	signal	main_pll_locked		:	std_logic;
 
 	signal	spi_north_valid		:	std_logic;
+	signal	spi_north_carid		:	std_logic_vector(CAR_ID_BUS_WIDTH-1 downto 0);
 	signal	spi_north_speed		:	std_logic_vector(CAR_SPEED_BUS_WIDTH-1 downto 0);
 	signal	spi_north_power		:	std_logic_vector(RX_POWER_BUS_WIDTH-1 downto 0);
 	
 	signal	spi_south_valid		:	std_logic;
+	signal	spi_south_carid		:	std_logic_vector(CAR_ID_BUS_WIDTH-1 downto 0);
 	signal	spi_south_speed		:	std_logic_vector(CAR_SPEED_BUS_WIDTH-1 downto 0);
 	signal	spi_south_power		:	std_logic_vector(RX_POWER_BUS_WIDTH-1 downto 0);
 	
 	signal	spi_east_valid		:	std_logic;
+	signal	spi_east_carid		:	std_logic_vector(CAR_ID_BUS_WIDTH-1 downto 0);
 	signal	spi_east_speed		:	std_logic_vector(CAR_SPEED_BUS_WIDTH-1 downto 0);
 	signal	spi_east_power		:	std_logic_vector(RX_POWER_BUS_WIDTH-1 downto 0);
 
 	signal	spi_west_valid		:	std_logic;
+	signal	spi_west_carid		:	std_logic_vector(CAR_ID_BUS_WIDTH-1 downto 0);
 	signal	spi_west_speed		:	std_logic_vector(CAR_SPEED_BUS_WIDTH-1 downto 0);
 	signal	spi_west_power		:	std_logic_vector(RX_POWER_BUS_WIDTH-1 downto 0);
 
 	signal	north_time_valid	:	std_logic;
-	signal	north_time			:	std_logic_vector(8-1 downto 0);
+	signal	north_carid			:	std_logic_vector(CAR_ID_BUS_WIDTH-1 downto 0);
+	signal	north_time			:	std_logic_vector(ARRIVAL_TIME_WIDTH-1 downto 0);
 	
 	signal	south_time_valid	:	std_logic;
-	signal	south_time			:	std_logic_vector(8-1 downto 0);
+	signal	south_carid			:	std_logic_vector(CAR_ID_BUS_WIDTH-1 downto 0);
+	signal	south_time			:	std_logic_vector(ARRIVAL_TIME_WIDTH-1 downto 0);
 	
 	signal	east_time_valid		:	std_logic;
-	signal	east_time			:	std_logic_vector(8-1 downto 0);
+	signal	east_carid			:	std_logic_vector(CAR_ID_BUS_WIDTH-1 downto 0);
+	signal	east_time			:	std_logic_vector(ARRIVAL_TIME_WIDTH-1 downto 0);
 	
 	signal	west_time_valid		:	std_logic;
-	signal	west_time			:	std_logic_vector(8-1 downto 0);
+	signal	west_carid			:	std_logic_vector(CAR_ID_BUS_WIDTH-1 downto 0);
+	signal	west_time			:	std_logic_vector(ARRIVAL_TIME_WIDTH-1 downto 0);
 	
 	signal	mctrl_valid_in		:	std_logic_vector(4-1 downto 0);
-	signal	mctrl_time_in		:	std_logic_vector(4*8-1 downto 0);
+	signal	mctrl_time_in		:	std_logic_vector(4*ARRIVAL_TIME_WIDTH-1 downto 0);
 	signal	mctrl_trflt_r		:	std_logic_vector(4-1 downto 0);
 	signal	mctrl_trflt_y		:	std_logic_vector(4-1 downto 0);
 	signal	mctrl_trflt_g		:	std_logic_vector(4-1 downto 0);
@@ -116,6 +124,7 @@ begin
 						app_rst		=>	reset_200,			--:	in	std_logic;
 
 						valid_out	=>	spi_north_valid,	--:	out	std_logic;
+						car_id_out	=>	spi_north_carid,	--:	out	std_logic_vector(carid_bw-1 downto 0);
 						speed_out	=>	spi_north_speed,	--:	out	std_logic_vector(speed_bw-1 downto 0);
 						power_out	=>	spi_north_power,	--:	out	std_logic_vector(power_bw-1 downto 0);
 
@@ -136,6 +145,7 @@ begin
 						app_rst		=>	reset_200,			--:	in	std_logic;
 
 						valid_out	=>	spi_south_valid,	--:	out	std_logic;
+						car_id_out	=>	spi_south_carid,	--:	out	std_logic_vector(carid_bw-1 downto 0);
 						speed_out	=>	spi_south_speed,	--:	out	std_logic_vector(speed_bw-1 downto 0);
 						power_out	=>	spi_south_power,	--:	out	std_logic_vector(power_bw-1 downto 0);
 
@@ -156,6 +166,7 @@ begin
 						app_rst		=>	reset_200,		--:	in	std_logic;
 						
 						valid_out	=>	spi_east_valid,	--:	out	std_logic;
+						car_id_out	=>	spi_east_carid,	--:	out	std_logic_vector(carid_bw-1 downto 0);
 						speed_out	=>	spi_east_speed,	--:	out	std_logic_vector(speed_bw-1 downto 0);
 						power_out	=>	spi_east_power,	--:	out	std_logic_vector(power_bw-1 downto 0);
 
@@ -176,6 +187,7 @@ begin
 						app_rst		=>	reset_200,		--:	in	std_logic;
 						
 						valid_out	=>	spi_west_valid,	--:	out	std_logic;
+						car_id_out	=>	spi_west_carid,	--:	out	std_logic_vector(carid_bw-1 downto 0);
 						speed_out	=>	spi_west_speed,	--:	out	std_logic_vector(speed_bw-1 downto 0);
 						power_out	=>	spi_west_power,	--:	out	std_logic_vector(power_bw-1 downto 0);
 
@@ -188,78 +200,90 @@ begin
 
 -- --	Region Arrival Time Calcilators
 
--- 	arrival_time_calc_north: entity work.arrival_time_calc
--- 		generic map	(
--- 						speed_bw	=>	8,	--:	positive;
--- 						power_bw	=>	8,	--:	positive;
--- 						time_bw		=>	8	--:	positive;
--- 					)
--- 		port map	(
--- 						app_clk			=>	clk_200,			--:	in	std_logic;
--- 						app_rst			=>	reset_200,			--:	in	std_logic;
+	arrival_time_calc_north: entity work.arrival_time_calc
+		generic map	(
+						carid_bw	=>	CAR_ID_BUS_WIDTH,		--:	positive;
+						speed_bw	=>	CAR_SPEED_BUS_WIDTH,	--:	positive;
+						power_bw	=>	RX_POWER_BUS_WIDTH,		--:	positive;
+						time_bw		=>	ARRIVAL_TIME_WIDTH		--:	positive;
+					)
+		port map	(
+						app_clk			=>	clk_200,			--:	in	std_logic;
+						app_rst			=>	reset_200,			--:	in	std_logic;
 
--- 						valid_in		=>	spi_north_valid,	--:	in	std_logic;
--- 						speed_in		=>	spi_north_speed,	--:	in	std_logic_vector(speed_bw-1 downto 0);
--- 						power_in		=>	spi_north_power,	--:	in	std_logic_vector(power_bw-1 downto 0);
+						valid_in		=>	spi_north_valid,	--:	in	std_logic;
+						carid_in		=>	spi_north_carid,	--:	in	std_logic_vector(carid_bw-1 downto 0);
+						speed_in		=>	spi_north_speed,	--:	in	std_logic_vector(speed_bw-1 downto 0);
+						power_in		=>	spi_north_power,	--:	in	std_logic_vector(power_bw-1 downto 0);
 						
--- 						valid_out		=>	north_time_valid,	--:	out	std_logic;
--- 						arrival_time	=>	north_time			--:	out	std_logic_vector(time_bw-1 downto 0);
--- 					);
+						valid_out		=>	north_time_valid,	--:	out	std_logic;
+						carid_out		=>	north_carid,		--:	out	std_logic_vector(carid_bw-1 downto 0);
+						arrival_time	=>	north_time			--:	out	std_logic_vector(time_bw-1 downto 0);
+					);
 
--- 	arrival_time_calc_south: entity work.arrival_time_calc
--- 		generic map	(
--- 						speed_bw	=>	8,	--:	positive;
--- 						power_bw	=>	8,	--:	positive;
--- 						time_bw		=>	8	--:	positive;
--- 					)
--- 		port map	(
--- 						app_clk			=>	clk_200,			--:	in	std_logic;
--- 						app_rst			=>	reset_200,			--:	in	std_logic;
+	arrival_time_calc_south: entity work.arrival_time_calc
+		generic map	(
+						carid_bw	=>	CAR_ID_BUS_WIDTH,		--:	positive;
+						speed_bw	=>	CAR_SPEED_BUS_WIDTH,	--:	positive;
+						power_bw	=>	RX_POWER_BUS_WIDTH,		--:	positive;
+						time_bw		=>	ARRIVAL_TIME_WIDTH		--:	positive;
+					)
+		port map	(
+						app_clk			=>	clk_200,			--:	in	std_logic;
+						app_rst			=>	reset_200,			--:	in	std_logic;
 
--- 						valid_in		=>	spi_south_valid,	--:	in	std_logic;
--- 						speed_in		=>	spi_south_speed,	--:	in	std_logic_vector(speed_bw-1 downto 0);
--- 						power_in		=>	spi_south_power,	--:	in	std_logic_vector(power_bw-1 downto 0);
+						valid_in		=>	spi_south_valid,	--:	in	std_logic;
+						carid_in		=>	spi_south_carid,	--:	in	std_logic_vector(carid_bw-1 downto 0);
+						speed_in		=>	spi_south_speed,	--:	in	std_logic_vector(speed_bw-1 downto 0);
+						power_in		=>	spi_south_power,	--:	in	std_logic_vector(power_bw-1 downto 0);
 						
--- 						valid_out		=>	south_time_valid,	--:	out	std_logic;
--- 						arrival_time	=>	south_time			--:	out	std_logic_vector(time_bw-1 downto 0);
--- 					);
+						valid_out		=>	south_time_valid,	--:	out	std_logic;
+						carid_out		=>	south_carid,		--:	out	std_logic_vector(carid_bw-1 downto 0);
+						arrival_time	=>	south_time			--:	out	std_logic_vector(time_bw-1 downto 0);
+					);
 	
--- 	arrival_time_calc_east: entity work.arrival_time_calc
--- 		generic map	(
--- 						speed_bw	=>	8,	--:	positive;
--- 						power_bw	=>	8,	--:	positive;
--- 						time_bw		=>	8	--:	positive;
--- 					)
--- 		port map	(
--- 						app_clk			=>	clk_200,			--:	in	std_logic;
--- 						app_rst			=>	reset_200,			--:	in	std_logic;
+	arrival_time_calc_east: entity work.arrival_time_calc
+		generic map	(
+						carid_bw	=>	CAR_ID_BUS_WIDTH,		--:	positive;
+						speed_bw	=>	CAR_SPEED_BUS_WIDTH,	--:	positive;
+						power_bw	=>	RX_POWER_BUS_WIDTH,		--:	positive;
+						time_bw		=>	ARRIVAL_TIME_WIDTH		--:	positive;
+					)
+		port map	(
+						app_clk			=>	clk_200,			--:	in	std_logic;
+						app_rst			=>	reset_200,			--:	in	std_logic;
 
--- 						valid_in		=>	spi_east_valid,		--:	in	std_logic;
--- 						speed_in		=>	spi_east_speed,		--:	in	std_logic_vector(speed_bw-1 downto 0);
--- 						power_in		=>	spi_east_power,		--:	in	std_logic_vector(power_bw-1 downto 0);
+						valid_in		=>	spi_east_valid,		--:	in	std_logic;
+						carid_in		=>	spi_east_carid,		--:	in	std_logic_vector(carid_bw-1 downto 0);
+						speed_in		=>	spi_east_speed,		--:	in	std_logic_vector(speed_bw-1 downto 0);
+						power_in		=>	spi_east_power,		--:	in	std_logic_vector(power_bw-1 downto 0);
 						
--- 						valid_out		=>	east_time_valid,	--:	out	std_logic;
--- 						arrival_time	=>	east_time			--:	out	std_logic_vector(time_bw-1 downto 0);
--- 				);
+						valid_out		=>	east_time_valid,	--:	out	std_logic;
+						carid_out		=>	east_carid,			--:	out	std_logic_vector(carid_bw-1 downto 0);
+						arrival_time	=>	east_time			--:	out	std_logic_vector(time_bw-1 downto 0);
+				);
 	
--- 	arrival_time_calc_west: entity work.arrival_time_calc
--- 		generic map	(
--- 						speed_bw	=>	8,	--:	positive;
--- 						power_bw	=>	8,	--:	positive;
--- 						time_bw		=>	8	--:	positive;
--- 					)
--- 		port map	(
--- 						app_clk			=>	clk_200,			--:	in	std_logic;
--- 						app_rst			=>	reset_200,			--:	in	std_logic;
+	arrival_time_calc_west: entity work.arrival_time_calc
+		generic map	(
+						carid_bw	=>	CAR_ID_BUS_WIDTH,		--:	positive;
+						speed_bw	=>	CAR_SPEED_BUS_WIDTH,	--:	positive;
+						power_bw	=>	RX_POWER_BUS_WIDTH,		--:	positive;
+						time_bw		=>	ARRIVAL_TIME_WIDTH		--:	positive;
+					)
+		port map	(
+						app_clk			=>	clk_200,			--:	in	std_logic;
+						app_rst			=>	reset_200,			--:	in	std_logic;
 
--- 						valid_in		=>	spi_west_valid,		--:	in	std_logic;
--- 						speed_in		=>	spi_west_speed,		--:	in	std_logic_vector(speed_bw-1 downto 0);
--- 						power_in		=>	spi_west_power,		--:	in	std_logic_vector(power_bw-1 downto 0);
+						valid_in		=>	spi_west_valid,		--:	in	std_logic;
+						carid_in		=>	spi_west_carid,		--:	in	std_logic_vector(carid_bw-1 downto 0);
+						speed_in		=>	spi_west_speed,		--:	in	std_logic_vector(speed_bw-1 downto 0);
+						power_in		=>	spi_west_power,		--:	in	std_logic_vector(power_bw-1 downto 0);
 						
--- 						valid_out		=>	west_time_valid,	--:	out	std_logic;
--- 						arrival_time	=>	west_time			--:	out	std_logic_vector(time_bw-1 downto 0);
--- 					);
--- --
+						valid_out		=>	west_time_valid,	--:	out	std_logic;
+						carid_out		=>	west_carid,			--:	out	std_logic_vector(carid_bw-1 downto 0);
+						arrival_time	=>	west_time			--:	out	std_logic_vector(time_bw-1 downto 0);
+					);
+--
 
 -- --	Region Main Controller
 

@@ -83,7 +83,7 @@ initial begin
 	tx_north = 16'b1000001100100011;
 	start_north = 1; @(posedge sys_clk); start_north = 0;
 	wait(done_north); repeat (10) @(posedge sys_clk);
-	tx_north = 16'b1000010000010100;
+	tx_north = 16'b1000010000010101;
 	start_north = 1; @(posedge sys_clk); start_north = 0;
 	wait(done_north); repeat (10) @(posedge sys_clk);
 
