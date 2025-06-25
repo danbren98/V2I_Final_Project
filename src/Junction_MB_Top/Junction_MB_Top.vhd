@@ -198,7 +198,7 @@ begin
 					);
 --
 
--- --	Region Arrival Time Calcilators
+--	Region Arrival Time Calcilators
 
 	arrival_time_calc_north: entity work.arrival_time_calc
 		generic map	(
@@ -285,42 +285,53 @@ begin
 					);
 --
 
--- --	Region Main Controller
+--	Region Main Controller
+main_controller_ist: entity work.main_controller
+	generic map	(
+					carid_bw	=>	CAR_ID_BUS_WIDTH	--:	positive;
+					time_bw		=>	ARRIVAL_TIME_WIDTH	--:	positive;
+				)
+	port map	(
+					app_clk				=>	clk_200,				--:	in	std_logic;
+					app_rst				=>	reset_200,				--:	in	std_logic;
 
--- mctrl_valid_in	<=	west_time_valid & east_time_valid & south_time_valid & north_time_valid;
--- mctrl_time_in	<=	west_time & east_time & south_time & north_time;
+					north_valid_in		=>	north_time_valid,		--:	in	std_logic;
+					north_carid			=>	north_carid,			--:	in	std_logic_vector(carid_bw-1 downto 0);
+					north_time_in		=>	north_time,				--:	in	std_logic_vector(time_bw-1 downto 0);
 
--- main_controller_ist: entity work.main_controller
--- 	generic map	(
--- 					time_bw		=>	8	--:	positive;
--- 				)
--- 	port map	(
--- 					app_clk						=>	clk_200,		--:	in	std_logic;
--- 					app_rst						=>	reset_200,		--:	in	std_logic;
+					south_valid_in		=>	south_time_valid,		--:	in	std_logic;
+					south_carid			=>	south_carid,			--:	in	std_logic_vector(carid_bw-1 downto 0);
+					south_time_in		=>	south_time,				--:	in	std_logic_vector(time_bw-1 downto 0);
 
--- 					valid_in					=>	mctrl_valid_in,	--:	in	std_logic_vector(4-1 downto 0);
--- 					time_in						=>	mctrl_time_in,	--:	in	std_logic_vector(4*time_bw-1 downto 0);
-					
--- 					traffic_light_out_red		=>	mctrl_trflt_r,	--:	out	std_logic_vector(4-1 downto 0);
--- 					traffic_light_out_yellow	=>	mctrl_trflt_y,	--:	out	std_logic_vector(4-1 downto 0);
--- 					traffic_light_out_green		=>	mctrl_trflt_g	--:	out	std_logic_vector(4-1 downto 0);
--- 				);
+					east_valid_in		=>	east_time_valid,		--:	in	std_logic;
+					east_carid			=>	east_carid,				--:	in	std_logic_vector(carid_bw-1 downto 0);
+					east_time_in		=>	east_time,				--:	in	std_logic_vector(time_bw-1 downto 0);
 
-	TRAFFIC_LIGHT_RED_NORTH		<=	mctrl_trflt_r(0);
-	TRAFFIC_LIGHT_YELLOW_NORTH	<=	mctrl_trflt_y(0);
-	TRAFFIC_LIGHT_GREEN_NORTH	<=	mctrl_trflt_g(0);
+					west_valid_in		=>	west_time_valid,		--:	in	std_logic;
+					west_carid			=>	west_carid,				--:	in	std_logic_vector(carid_bw-1 downto 0);
+					west_time_in		=>	west_time,				--:	in	std_logic_vector(time_bw-1 downto 0);
 
-	TRAFFIC_LIGHT_RED_SOUTH		<=	mctrl_trflt_r(1);
-	TRAFFIC_LIGHT_YELLOW_SOUTH	<=	mctrl_trflt_y(1);
-	TRAFFIC_LIGHT_GREEN_SOUTH	<=	mctrl_trflt_g(1);
+					north_traffic_light	=>	north_traffic_light,	--:	out	std_logic_vector(3-1 downto 0);
+					south_traffic_light	=>	south_traffic_light,	--:	out	std_logic_vector(3-1 downto 0);
+					east_traffic_light	=>	east_traffic_light,		--:	out	std_logic_vector(3-1 downto 0);
+					west_traffic_light	=>	west_traffic_light		--:	out	std_logic_vector(3-1 downto 0);
+				);
 
-	TRAFFIC_LIGHT_RED_EAST		<=	mctrl_trflt_r(2);
-	TRAFFIC_LIGHT_YELLOW_EAST	<=	mctrl_trflt_y(2);
-	TRAFFIC_LIGHT_GREEN_EAST	<=	mctrl_trflt_g(2);
+	TRAFFIC_LIGHT_RED_NORTH		<=	north_traffic_light(0);
+	TRAFFIC_LIGHT_YELLOW_NORTH	<=	north_traffic_light(1);
+	TRAFFIC_LIGHT_GREEN_NORTH	<=	north_traffic_light(2);
 
-	TRAFFIC_LIGHT_RED_WEST		<=	mctrl_trflt_r(3);
-	TRAFFIC_LIGHT_YELLOW_WEST	<=	mctrl_trflt_y(3);
-	TRAFFIC_LIGHT_GREEN_WEST	<=	mctrl_trflt_g(3);
+	TRAFFIC_LIGHT_RED_SOUTH		<=	south_traffic_light(0);
+	TRAFFIC_LIGHT_YELLOW_SOUTH	<=	south_traffic_light(1);
+	TRAFFIC_LIGHT_GREEN_SOUTH	<=	south_traffic_light(2);
+
+	TRAFFIC_LIGHT_RED_EAST		<=	east_traffic_light(0);
+	TRAFFIC_LIGHT_YELLOW_EAST	<=	east_traffic_light(1);
+	TRAFFIC_LIGHT_GREEN_EAST	<=	east_traffic_light(2);
+
+	TRAFFIC_LIGHT_RED_WEST		<=	west_traffic_light(0);
+	TRAFFIC_LIGHT_YELLOW_WEST	<=	west_traffic_light(1);
+	TRAFFIC_LIGHT_GREEN_WEST	<=	west_traffic_light(2);
 --
 
 	User_LEDs_Driver_p: process(reset_200, clk_200)
