@@ -39,8 +39,8 @@ architecture rtl of arrival_time_calc is
 				);
 				end component;
 				
-	signal	valid_delay	:	std_logic_vector(1 downto 0)		:=	(others => '0');
-	signal	carid_delay	:	stdarray(1 downto 0)(carid_in'range):=	(others => (others => '0'));
+	signal	valid_delay	:	std_logic_vector(8 downto 0)		:=	(others => '0');
+	signal	carid_delay	:	stdarray(8 downto 0)(carid_in'range):=	(others => (others => '0'));
 	signal	speed		:	std_logic_vector(speed_in'range)	:=	(others => '0');
 	signal	power		:	unsigned(power_in'range)			:=	(others => '0');
 	signal	distance	:	std_logic_vector(7 downto 0)		:=	(others => '0');
@@ -53,7 +53,7 @@ begin
 	Delay_p:
 	--	Valids delay are synchronozized to:
 	--	valid(0) - input valid to divider (speed and distance signals are synched to it);
-	--	valid(1) - divider piplined valid. output valid of divider.
+	--	valid(4 downto 1) - divider piplined valid. output valid of divider synced to msb.
 		process (app_rst, app_clk) is
 		begin
 			if (rising_edge(app_clk)) then

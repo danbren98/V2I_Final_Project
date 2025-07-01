@@ -92,22 +92,38 @@ begin
 			end if;
 
 			if (spi_rxvalid = '1' and spi_opr = '1') then
-				valid_out	<=	'0';
-				
 				if (unsigned(spi_register) = 2) then
-					car_id_loaded	<=	'1';
-				end if;
-				
-				if (unsigned(spi_register) = 3) then
-					speed_loaded	<=	'1';
-				end if;
-
-				if (unsigned(spi_register) = 4) then
-					sigpow_loaded	<=	'1';
+					if (spi_data(car_id_reg'high) = '0') then
+						valid_out	<=	'1';
+					else
+						valid_out	<=	'0';
+					end if;
+				else
+					valid_out	<=	'0';
 				end if;
 			else
 				valid_out	<=	info_ready;
+			end if;
+				
+			if (spi_rxvalid = '1' and spi_opr = '1') then
+				if (unsigned(spi_register) = 2) then
+					if (spi_data(car_id_reg'high) = '0') then
+						car_id_loaded	<=	'0';
+						speed_loaded	<=	'0';
+						sigpow_loaded	<=	'0';
+					else
+						car_id_loaded	<=	'1';
+					end if;
+				else
+					if (unsigned(spi_register) = 3) then
+						speed_loaded	<=	'1';
+					end if;
 
+					if (unsigned(spi_register) = 4) then
+						sigpow_loaded	<=	'1';
+					end if;
+				end if;
+			else
 				if (info_ready = '1') then
 					car_id_loaded	<=	'0';
 					speed_loaded	<=	'0';

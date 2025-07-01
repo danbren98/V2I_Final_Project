@@ -87,7 +87,7 @@ BEGIN
 		lpm_drepresentation => "UNSIGNED",
 		lpm_hint => "LPM_REMAINDERPOSITIVE=TRUE",
 		lpm_nrepresentation => "UNSIGNED",
-		lpm_pipeline => 1,
+		lpm_pipeline => 8,
 		lpm_type => "LPM_DIVIDE",
 		lpm_widthd => 8,
 		lpm_widthn => 8
@@ -118,7 +118,7 @@ END SYN;
 -- Retrieval info: CONSTANT: LPM_DREPRESENTATION STRING "UNSIGNED"
 -- Retrieval info: CONSTANT: LPM_HINT STRING "LPM_REMAINDERPOSITIVE=TRUE"
 -- Retrieval info: CONSTANT: LPM_NREPRESENTATION STRING "UNSIGNED"
--- Retrieval info: CONSTANT: LPM_PIPELINE NUMERIC "1"
+-- Retrieval info: CONSTANT: LPM_PIPELINE NUMERIC "8"
 -- Retrieval info: CONSTANT: LPM_TYPE STRING "LPM_DIVIDE"
 -- Retrieval info: CONSTANT: LPM_WIDTHD NUMERIC "8"
 -- Retrieval info: CONSTANT: LPM_WIDTHN NUMERIC "8"
@@ -134,7 +134,7 @@ END SYN;
 -- Retrieval info: CONNECT: remain 0 0 8 0 @remain 0 0 8 0
 -- Retrieval info: GEN_FILE: TYPE_NORMAL divider.vhd TRUE
 -- Retrieval info: GEN_FILE: TYPE_NORMAL divider.inc FALSE
--- Retrieval info: GEN_FILE: TYPE_NORMAL divider.cmp TRUE
+-- Retrieval info: GEN_FILE: TYPE_NORMAL divider.cmp FALSE
 -- Retrieval info: GEN_FILE: TYPE_NORMAL divider.bsf FALSE
--- Retrieval info: GEN_FILE: TYPE_NORMAL divider_inst.vhd TRUE
+-- Retrieval info: GEN_FILE: TYPE_NORMAL divider_inst.vhd FALSE
 -- Retrieval info: LIB_FILE: lpm

@@ -23,7 +23,7 @@ logic traffic_light_red_east, traffic_light_yellow_east, traffic_light_green_eas
 logic traffic_light_red_west, traffic_light_yellow_west, traffic_light_green_west;
 
 // User leds
-logic [1:0] user_leds;
+logic [3:0] user_leds;
 
 // Driver controls and data
 logic start_north, done_north;
@@ -116,6 +116,10 @@ initial begin
 	tx_west = 16'b1000010000010100;
 	start_west = 1; @(posedge sys_clk); start_west = 0;
 	wait(done_west); repeat (10) @(posedge sys_clk);
+
+	tx_north = 16'b1000001000101110;
+	start_north = 1; @(posedge sys_clk); start_north = 0;
+	wait(done_north); repeat (10) @(posedge sys_clk);
 	
 end
 
@@ -200,7 +204,7 @@ Junction_MB_Top DUT (
 	.TRAFFIC_LIGHT_YELLOW_WEST	(traffic_light_yellow_west),	//	output
 	.TRAFFIC_LIGHT_GREEN_WEST	(traffic_light_green_west),		//	output
 	
-	.USER_LEDS					(user_leds)						//	output	[1 downto 0]
+	.USER_LEDS					(user_leds)						//	output	[3 downto 0]
 );
 
 
