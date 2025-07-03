@@ -422,13 +422,13 @@ begin
 					when st_prep_green_light =>
 						traffic_light	<=	TRAFFIC_LIGHT_PREP_GREEN;
 						if (one_sec_pulse = '1') then
-							if (light_cntr = 3) then
+							if (light_cntr = 1) then
 								light_cntr	<= (others => '0');
 							else
 								light_cntr	<=	light_cntr + 1;
 							end if;
 
-							if (light_cntr = 3) then
+							if (light_cntr = 1) then
 								traffic_light_sm	<=	st_green_light;
 							end if;
 						end if;
@@ -444,13 +444,13 @@ begin
 					when st_yellow_light =>
 						traffic_light	<=	TRAFFIC_LIGHT_YELLOW;
 						if (one_sec_pulse = '1') then
-							if (light_cntr = 3) then
+							if (light_cntr = 1) then
 								light_cntr	<= (others => '0');
 							else
 								light_cntr	<=	light_cntr + 1;
 							end if;
 
-							if (light_cntr = 3) then
+							if (light_cntr = 1) then
 								traffic_light_sm	<=	st_red_light;
 							end if;
 						end if;
@@ -462,12 +462,6 @@ begin
 				
 			end if;
 		end process;
-	
-	
-	
-	
-	
-	
 	
 	
 	One_Second_Timer_p:
@@ -489,6 +483,8 @@ begin
 						one_sec_pulse	<=	'0';
 						one_sec_cntr	<=	one_sec_cntr + 1;
 					end if;
+				else
+					one_sec_pulse	<=	'0';
 				end if;
 				
 				if (one_us_pulse = '1') then
@@ -499,9 +495,11 @@ begin
 						one_ms_pulse	<=	'0';
 						one_ms_cntr		<=	one_ms_cntr + 1;
 					end if;
+				else
+					one_ms_pulse	<=	'0';
 				end if;
 				
-				if (one_us_cntr = ONE_USEC_VAL) then
+				if (one_us_cntr = ONE_USEC_VAL-1) then
 					one_us_pulse	<=	'1';
 					one_us_cntr		<=	(others => '0');
 				else

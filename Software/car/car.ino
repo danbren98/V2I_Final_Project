@@ -7,6 +7,8 @@ const char *password = "COGmvTFXNOvCcnIc79Z9OFFMIvOWLuNCQOdVlPDhHCp"; // 256-bit
 IPAddress server(192, 168, 4, 22);  // IP of server (e.g., ESP32 AP)
 WiFiClient client;
 
+int carid;
+
 void connect_ap() {
   Serial.print("Connecting to ");
   Serial.println(ssid);
