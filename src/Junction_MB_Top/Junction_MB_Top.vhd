@@ -9,6 +9,7 @@ entity Junction_MB_Top is
 	port	(
 				SYS_CLK						:	in	std_logic;
 				SYS_RSTN					:	in	std_logic;
+				SYS_SOFT_RSTN				:	in	std_logic;
 
 				SCLK_NORTH					:	in	std_logic;
 				SS_N_NORTH					:	in	std_logic;
@@ -136,7 +137,8 @@ begin
 	
 	Clock_Generator_Inst: entity work.clock_generator
 		port map	(
-						arst		=>	SYS_RSTN,			--:	in	std_logic;
+						hard_arst	=>	SYS_RSTN,			--:	in	std_logic;
+						soft_arst	=>	SYS_SOFT_RSTN,		--:	in	std_logic;
 						refclk		=>	SYS_CLK,			--:	in	std_logic;
 
 						locked		=>	main_pll_locked,	--:	out	std_logic;
@@ -320,7 +322,7 @@ begin
 --
 
 --	Region Main Controller
-main_controller_ist: entity work.main_controller
+main_controller_inst: entity work.main_controller
 	generic map	(
 					carid_bw	=>	CAR_ID_BUS_WIDTH,	--:	positive;
 					time_bw		=>	ARRIVAL_TIME_WIDTH	--:	positive;
@@ -389,68 +391,19 @@ main_controller_ist: entity work.main_controller
 
 
 
-	User_LEDs_Driver_p: process(reset_200, clk_200)
+
+	User_LEDs_Driver_p: process(main_pll_locked, reset_200, clk_200)
+	--	USER_LEDS[0] - red active high
+	--	USER_LEDS[1] - red active high
+	--	USER_LEDS[2] - green active low
+	--	USER_LEDS[3] - green active low
 	begin
-		if (reset_200 = '1') then
-			USER_LEDS	<=	(others => '1');
+		if (main_pll_locked = '0') then
+			USER_LEDS	<=	"1111";
+		elsif (reset_200 = '1') then
+			USER_LEDS	<=	"1100";
 		elsif (rising_edge(clk_200)) then
-			USER_LEDS	<=	(others => not main_pll_locked);
+			USER_LEDS	<=	"0000";
 		end if;
 	end process User_LEDs_Driver_p;
-
-
-
-
-
-	-- process(clk_200)
-	-- begin
-	-- 	if (rising_edge(clk_200)) then
-	-- 		if (one_sec_pulse = '1') then
-	-- 			north_traffic_light	<=	north_traffic_light(north_traffic_light'high-1 downto 0) & north_traffic_light(north_traffic_light'high);
-	-- 			south_traffic_light	<=	south_traffic_light(south_traffic_light'high-1 downto 0) & south_traffic_light(south_traffic_light'high);
-	-- 			east_traffic_light	<=	east_traffic_light(east_traffic_light'high-1 downto 0) & east_traffic_light(east_traffic_light'high);
-	-- 			west_traffic_light	<=	west_traffic_light(west_traffic_light'high-1 downto 0) & west_traffic_light(west_traffic_light'high);
-	-- 		end if;
-	-- 	end if;
-	-- end process;
-	
-	-- One_Second_Timer_p:
-	-- 	process(clk_200)
-	-- 	begin
-	-- 		if (rising_edge(clk_200)) then
-	-- 			if (one_ms_pulse = '1') then
-	-- 				if (one_sec_cntr = 1000-1) then
-	-- 					one_sec_pulse	<=	'1';
-	-- 					one_sec_cntr	<=	(others => '0');
-	-- 				else
-	-- 					one_sec_pulse	<=	'0';
-	-- 					one_sec_cntr	<=	one_sec_cntr + 1;
-	-- 				end if;
-	-- 			else
-	-- 				one_sec_pulse	<=	'0';
-	-- 			end if;
-				
-	-- 			if (one_us_pulse = '1') then
-	-- 				if (one_ms_cntr = 1000-1) then
-	-- 					one_ms_pulse	<=	'1';
-	-- 					one_ms_cntr		<=	(others => '0');
-	-- 				else
-	-- 					one_ms_pulse	<=	'0';
-	-- 					one_ms_cntr		<=	one_ms_cntr + 1;
-	-- 				end if;
-	-- 			else
-	-- 				one_ms_pulse	<=	'0';
-	-- 			end if;
-				
-	-- 			if (one_us_cntr = 200-1) then
-	-- 				one_us_pulse	<=	'1';
-	-- 				one_us_cntr		<=	(others => '0');
-	-- 			else
-	-- 				one_us_pulse	<=	'0';
-	-- 				one_us_cntr		<=	one_us_cntr + 1;
-	-- 			end if;
-				
-	-- 		end if;
-	-- 	end process;
-
 end rtl;

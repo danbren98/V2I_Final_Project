@@ -40,11 +40,10 @@ architecture behavioural of spi_slave is
 	signal  txbuffer		:	std_logic_vector(data_width-1 downto 0)     :=  (others => '0');    --transmit buffer
 
 	signal  ssn_synced		:	std_logic									:=  '1';
-	signal  ssn_sync_sr		:	std_logic_vector(3 downto 0)				:=  (others => '1');
-	signal  ssn_synced_s	:	std_logic                                   :=  '0';
+	signal  ssn_sync_sr		:	std_logic_vector(7 downto 0)				:=  (others => '1');
+	signal  ssn_synced_s	:	std_logic                                   :=  '1';
 	signal  ssn_synced_re	:	std_logic;
 	signal  ssn_synced_fe	:	std_logic;
-	signal  ssn_filter		:	std_logic                                   :=  '0';
 
 begin
 	
@@ -94,8 +93,7 @@ begin
 			
 			if (user_rst = '1') then
 				user_valid_rx   <=  '0';
-				ssn_synced_s    <=  '0';
-				ssn_filter      <=  '0';
+				ssn_synced_s    <=  '1';
 			end if;
 		end process;
 	

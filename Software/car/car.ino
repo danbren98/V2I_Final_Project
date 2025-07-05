@@ -1,7 +1,9 @@
 #include <WiFi.h>
 
+uint8_t EN_PIN = 9;
+
 // Wi-Fi credentials
-const char *ssid = "TrafficLightAP";
+const char *ssid = "NorthTrafficLightAP";
 const char *password = "COGmvTFXNOvCcnIc79Z9OFFMIvOWLuNCQOdVlPDhHCp"; // 256-bit secure
 
 IPAddress server(192, 168, 4, 22);  // IP of server (e.g., ESP32 AP)
@@ -34,7 +36,7 @@ int get_speed() {
   return random(20, 150);
 }
 
-void car(){
+void car() {
   int speed = get_speed();
   byte rssiByte = abs(WiFi.RSSI());
 
@@ -51,10 +53,12 @@ void setup() {
   Serial.begin(115200);
   delay(100);  // Give serial some time
 
-  connect_ap();
-  car();
+  pinMode(EN_PIN, INPUT);
 }
 
 void loop() {
-
+  if (digitalRead(EN_PIN) == 0) {
+    connect_ap();
+    car();
+  }
 }

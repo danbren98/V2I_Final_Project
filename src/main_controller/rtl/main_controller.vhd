@@ -70,7 +70,7 @@ architecture rtl of main_controller is
 	signal	east_cars_num				:	unsigned(carid_bw-1 downto 0)	:=	(others => '0');
 	signal	west_cars_num				:	unsigned(carid_bw-1 downto 0)	:=	(others => '0');
 
-	signal	set_traffic_light_green	:	std_logic						:=	'0';
+	signal	set_traffic_light_green		:	std_logic						:=	'0';
 	signal	set_traffic_light_red		:	std_logic						:=	'0';
 
 	signal	one_sec_cntr				:	unsigned(10 downto 0)			:=	(others => '0');
@@ -222,30 +222,61 @@ begin
 		process(north_cars_num, south_cars_num, east_cars_num, west_cars_num) is
 		begin
 			if (north_cars_num >= south_cars_num and north_cars_num >= east_cars_num and north_cars_num >= west_cars_num) then
-				north_priority		<= "1000";
+				if (north_cars_num = 0) then
+					north_priority	<=	"0000";
+				else
+					north_priority	<= "1000";
+				end if;
 				if (south_cars_num >= east_cars_num and south_cars_num >= west_cars_num) then
-					south_priority	<= "0100";
+					if (south_cars_num = 0) then
+						south_priority	<=	"0000";
+					else
+						south_priority	<= "0100";
+					end if;
 					if (east_cars_num >= west_cars_num) then
-						east_priority	<= "0010";
-						west_priority	<= "0001";
+						if (east_cars_num = 0) then
+							east_priority	<= "0000";
+							west_priority	<= "0000";
+						else
+							east_priority	<= "0010";
+							west_priority	<= "0001";
+						end if;
 					else
 						east_priority	<= "0001";
 						west_priority	<= "0010";
 					end if;
 				elsif (east_cars_num >= south_cars_num and east_cars_num >= west_cars_num) then
-					east_priority	<= "0100";
+					if (east_cars_num = 0) then
+						east_priority	<=	"0000";
+					else
+						east_priority	<= "0100";
+					end if;
 					if (south_cars_num >= west_cars_num) then
-						south_priority	<= "0010";
-						west_priority	<= "0001";
+						if (south_cars_num = 0) then
+							south_priority	<= "0000";
+							west_priority	<= "0000";
+						else
+							south_priority	<= "0010";
+							west_priority	<= "0001";
+						end if;
 					else
 						south_priority	<= "0001";
 						west_priority	<= "0010";
 					end if;
 				elsif (west_cars_num >= south_cars_num and west_cars_num >= east_cars_num) then
-					west_priority	<= "0100";
+					if (west_cars_num = 0) then
+						west_priority	<=	"0000";
+					else
+						west_priority	<= "0100";
+					end if;
 					if (south_cars_num >= east_cars_num) then
-						south_priority	<= "0010";
-						east_priority	<= "0001";
+						if (south_cars_num = 0) then
+							south_priority	<= "0000";
+							east_priority	<= "0000";
+						else
+							south_priority	<= "0010";
+							east_priority	<= "0001";
+						end if;
 					else
 						south_priority	<= "0001";
 						east_priority	<= "0010";
@@ -257,30 +288,61 @@ begin
 				end if;
 				
 			elsif (south_cars_num >= north_cars_num and south_cars_num >= east_cars_num and south_cars_num >= west_cars_num) then
-				south_priority		<= "1000";
+				if (south_cars_num = 0) then
+					south_priority		<= "0000";
+				else	
+					south_priority		<= "1000";
+				end if;
 				if (north_cars_num >= east_cars_num and north_cars_num >= west_cars_num) then
-					north_priority	<= "0100";
+					if (north_cars_num = 0) then
+						north_priority	<= "0000";
+					else
+						north_priority	<= "0100";
+					end if;
 					if (east_cars_num >= west_cars_num) then
-						east_priority	<= "0010";
-						west_priority	<= "0001";
+						if (east_cars_num = 0) then
+							east_priority	<= "0000";
+							west_priority	<= "0000";
+						else
+							east_priority	<= "0010";
+							west_priority	<= "0001";
+						end if;
 					else
 						east_priority	<= "0001";
 						west_priority	<= "0010";
 					end if;
 				elsif (east_cars_num >= north_cars_num and east_cars_num >= west_cars_num) then
-					east_priority	<= "0100";
+					if (east_cars_num = 0) then
+						east_priority	<= "0000";
+					else
+						east_priority	<= "0100";
+					end if;
 					if (north_cars_num >= west_cars_num) then
-						north_priority	<= "0010";
-						west_priority	<= "0001";
+						if (north_cars_num = 0) then
+							north_priority	<= "0000";
+							west_priority	<= "0000";
+						else
+							north_priority	<= "0010";
+							west_priority	<= "0001";
+						end if;
 					else
 						north_priority	<= "0001";
 						west_priority	<= "0010";
 					end if;
 				elsif (west_cars_num >= north_cars_num and west_cars_num >= east_cars_num) then
-					west_priority	<= "0100";
+					if (west_cars_num = 0) then
+						west_priority	<=	"0000";
+					else
+						west_priority	<= "0100";
+					end if;
 					if (north_cars_num >= east_cars_num) then
-						north_priority	<= "0010";
-						east_priority	<= "0001";
+						if (north_cars_num = 0) then
+							north_priority	<= "0000";
+							east_priority	<= "0000";
+						else
+							north_priority	<= "0010";
+							east_priority	<= "0001";
+						end if;
 					else
 						north_priority	<= "0001";
 						east_priority	<= "0010";
@@ -369,18 +431,61 @@ begin
 		begin
 			if (rising_edge(app_clk)) then
 				if (north_priority = "1000") then
-					north_traffic_light	<=	traffic_light;
-					south_traffic_light	<=	TRAFFIC_LIGHT_RED;
+					if (north_cars_num > 0) then
+						north_traffic_light	<=	traffic_light;
+						south_traffic_light	<=	TRAFFIC_LIGHT_RED;
+						east_traffic_light	<=	TRAFFIC_LIGHT_RED;
+						west_traffic_light	<=	TRAFFIC_LIGHT_RED;
+			
+						set_traffic_light_green	<=	'1';
+						set_traffic_light_red	<=	'0';
+					else
+						if (north_traffic_light = TRAFFIC_LIGHT_RED) then
+							if (south_priority = "0100") then
+								north_traffic_light	<=	TRAFFIC_LIGHT_RED;
+								south_traffic_light	<=	traffic_light;
+								east_traffic_light	<=	TRAFFIC_LIGHT_RED;
+								west_traffic_light	<=	TRAFFIC_LIGHT_RED;
+								if (south_cars_num > 0) then
+									set_traffic_light_green	<=	'1';
+									set_traffic_light_red	<=	'0';
+								else
+									set_traffic_light_green	<=	'0';
+									set_traffic_light_red	<=	'1';
+								end if;
+							else
+								north_traffic_light	<=	TRAFFIC_LIGHT_RED;
+								south_traffic_light	<=	TRAFFIC_LIGHT_RED;
+								east_traffic_light	<=	TRAFFIC_LIGHT_RED;
+								west_traffic_light	<=	TRAFFIC_LIGHT_RED;
+
+								set_traffic_light_green	<=	'0';
+								set_traffic_light_red	<=	'0';
+							end if;
+						else
+							north_traffic_light	<=	traffic_light;
+							south_traffic_light	<=	TRAFFIC_LIGHT_RED;
+							east_traffic_light	<=	TRAFFIC_LIGHT_RED;
+							west_traffic_light	<=	TRAFFIC_LIGHT_RED;
+							
+							set_traffic_light_green	<=	'0';
+							set_traffic_light_red	<=	'1';
+						end if;
+					end if;
+				elsif (south_priority = "1000") then
+					north_traffic_light	<=	TRAFFIC_LIGHT_RED;
+					south_traffic_light	<=	traffic_light;
 					east_traffic_light	<=	TRAFFIC_LIGHT_RED;
 					west_traffic_light	<=	TRAFFIC_LIGHT_RED;
 					
-					if (north_cars_num > 0) then
+					if (south_cars_num > 0) then
 						set_traffic_light_green	<=	'1';
 						set_traffic_light_red	<=	'0';
 					else
 						set_traffic_light_green	<=	'0';
 						set_traffic_light_red	<=	'1';
 					end if;
+				
 				else
 					north_traffic_light	<=	TRAFFIC_LIGHT_RED;
 					south_traffic_light	<=	TRAFFIC_LIGHT_RED;
@@ -390,8 +495,6 @@ begin
 					set_traffic_light_green	<=	'0';
 					set_traffic_light_red	<=	'0';
 				end if;
-
-					
 			end if;
 			
 			if (app_rst = '1') then

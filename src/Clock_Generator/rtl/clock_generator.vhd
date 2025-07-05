@@ -4,7 +4,8 @@ library IEEE;
 
 entity clock_generator is
 	port	(
-				arst		:	in	std_logic;
+				hard_arst	:	in	std_logic;
+				soft_arst	:	in	std_logic;
 				refclk		:	in	std_logic;
 
 				locked		:	out	std_logic;
@@ -25,37 +26,52 @@ architecture rtl of clock_generator is
 				);
 	end component;
 
-	signal	pll_rst		:	std_logic;
-	signal	arst_deb	:	std_logic;
-	signal	clk_200_s	:	std_logic;
-	signal	locked_s	:	std_logic;
+	signal	pll_rst			:	std_logic;
+	signal	hard_arst_deb	:	std_logic;
+	signal	soft_arst_deb	:	std_logic;
+	signal	rst_to_sync		:	std_logic;
+	signal	clk_200_s		:	std_logic;
+	signal	locked_s		:	std_logic;
 
 begin
 
-	SYS_RSTN_Debouncer: entity work.debouncer
+	SYS_HARD_RSTN_Debouncer: entity work.debouncer
 		generic map	(
 						polarity	=>	'0',	--:	std_logic;
 						time_out_w	=>	15,		--:	positive;
-						timeout		=>	500	--:	natural
+						timeout		=>	500		--:	natural
 					)
 		port map	(
-						clk_in		=>	refclk,		--:	in	std_logic;
+						clk_in		=>	refclk,			--:	in	std_logic;
 
-						sig_in		=>	arst,		--:	in	std_logic;
-						sig_out		=>	arst_deb	--:	out	std_logic
+						sig_in		=>	hard_arst,		--:	in	std_logic;
+						sig_out		=>	hard_arst_deb	--:	out	std_logic
 					);
 	
-	pll_rst	<=	not arst_deb;
+	SYS_SOFT_RST_Debouncer: entity work.debouncer
+		generic map	(
+						polarity	=>	'0',	--:	std_logic;
+						time_out_w	=>	15,		--:	positive;
+						timeout		=>	500		--:	natural
+					)
+		port map	(
+						clk_in		=>	refclk,			--:	in	std_logic;
+
+						sig_in		=>	soft_arst,		--:	in	std_logic;
+						sig_out		=>	soft_arst_deb	--:	out	std_logic
+					);
+	
+	pll_rst	<=	not hard_arst_deb;
 	
 	main_pll_inst: main_pll
 		port map	(
 						areset	=>	pll_rst,	--: in std_logic	:=	'0';
 						inclk0	=>	refclk,		--: in std_logic	:=	'0';
 						c0		=>	clk_200_s,	--: out std_logic;
-						locked	=>	locked		--: out std_logic
+						locked	=>	locked_s	--: out std_logic
 					);
 
-	locked_s	<=	locked;
+	rst_to_sync	<=	locked_s and soft_arst_deb;
 
 	reset_200_sync: entity work.async_rst_sync
 		generic map	(
@@ -64,10 +80,10 @@ begin
 						stages	=>	3		--:	positive;	--	Number of reset stages
 					)
 		port map	(
-						arst_in		=>	locked_s,	--:	in	std_logic;
-						clk_in		=>	clk_200_s,	--:	in	std_logic;
+						arst_in		=>	rst_to_sync,	--:	in	std_logic;
+						clk_in		=>	clk_200_s,		--:	in	std_logic;
 		
-						arst_out	=>	reset_200	--:	out	std_logic
+						arst_out	=>	reset_200		--:	out	std_logic
 					);
 
 
