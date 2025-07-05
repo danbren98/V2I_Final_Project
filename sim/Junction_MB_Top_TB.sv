@@ -80,48 +80,55 @@ initial begin
 	tx_north = 16'b1000001010101110;
 	start_north = 1; @(posedge sys_clk); start_north = 0;
 	wait(done_north); repeat (10) @(posedge sys_clk);
-	tx_north = 16'b1000001100100011;
+	tx_north = 16'b1000001100001010;
 	start_north = 1; @(posedge sys_clk); start_north = 0;
 	wait(done_north); repeat (10) @(posedge sys_clk);
-	tx_north = 16'b1000010000010101;
+	tx_north = 16'b1000010001001010;
 	start_north = 1; @(posedge sys_clk); start_north = 0;
 	wait(done_north); repeat (10) @(posedge sys_clk);
 
-	tx_south = 16'b1000001010101110;
-	start_south = 1; @(posedge sys_clk); start_south = 0;
-	wait(done_south); repeat (10) @(posedge sys_clk);
-	tx_south = 16'b1000001100100011;
-	start_south = 1; @(posedge sys_clk); start_south = 0;
-	wait(done_south); repeat (10) @(posedge sys_clk);
-	tx_south = 16'b1000010000010100;
-	start_south = 1; @(posedge sys_clk); start_south = 0;
-	wait(done_south); repeat (10) @(posedge sys_clk);
-
-	tx_east = 16'b1000001010101110;
-	start_east = 1; @(posedge sys_clk); start_east = 0;
-	wait(done_east); repeat (10) @(posedge sys_clk);
-	tx_east = 16'b1000001100100011;
-	start_east = 1; @(posedge sys_clk); start_east = 0;
-	wait(done_east); repeat (10) @(posedge sys_clk);
-	tx_east = 16'b1000010000010100;
-	start_east = 1; @(posedge sys_clk); start_east = 0;
-	wait(done_east); repeat (10) @(posedge sys_clk);
-
-	tx_west = 16'b1000001010101110;
-	start_west = 1; @(posedge sys_clk); start_west = 0;
-	wait(done_west); repeat (10) @(posedge sys_clk);
-	tx_west = 16'b1000001100100011;
-	start_west = 1; @(posedge sys_clk); start_west = 0;
-	wait(done_west); repeat (10) @(posedge sys_clk);
-	tx_west = 16'b1000010000010100;
-	start_west = 1; @(posedge sys_clk); start_west = 0;
-	wait(done_west); repeat (10) @(posedge sys_clk);
-
+	wait(traffic_light_green_north); @(posedge sys_clk);
+	
 	tx_north = 16'b1000001000101110;
 	start_north = 1; @(posedge sys_clk); start_north = 0;
 	wait(done_north); repeat (10) @(posedge sys_clk);
-	
+
 end
+
+	// tx_south = 16'b1000001010101110;
+	// start_south = 1; @(posedge sys_clk); start_south = 0;
+	// wait(done_south); repeat (10) @(posedge sys_clk);
+	// tx_south = 16'b1000001100100011;
+	// start_south = 1; @(posedge sys_clk); start_south = 0;
+	// wait(done_south); repeat (10) @(posedge sys_clk);
+	// tx_south = 16'b1000010000010100;
+	// start_south = 1; @(posedge sys_clk); start_south = 0;
+	// wait(done_south); repeat (10) @(posedge sys_clk);
+
+	// tx_east = 16'b1000001010101110;
+	// start_east = 1; @(posedge sys_clk); start_east = 0;
+	// wait(done_east); repeat (10) @(posedge sys_clk);
+	// tx_east = 16'b1000001100100011;
+	// start_east = 1; @(posedge sys_clk); start_east = 0;
+	// wait(done_east); repeat (10) @(posedge sys_clk);
+	// tx_east = 16'b1000010000010100;
+	// start_east = 1; @(posedge sys_clk); start_east = 0;
+	// wait(done_east); repeat (10) @(posedge sys_clk);
+
+	// tx_west = 16'b1000001010101110;
+	// start_west = 1; @(posedge sys_clk); start_west = 0;
+	// wait(done_west); repeat (10) @(posedge sys_clk);
+	// tx_west = 16'b1000001100100011;
+	// start_west = 1; @(posedge sys_clk); start_west = 0;
+	// wait(done_west); repeat (10) @(posedge sys_clk);
+	// tx_west = 16'b1000010000010100;
+	// start_west = 1; @(posedge sys_clk); start_west = 0;
+	// wait(done_west); repeat (10) @(posedge sys_clk);
+
+	// tx_north = 16'b1000001000101110;
+	// start_north = 1; @(posedge sys_clk); start_north = 0;
+	// wait(done_north); repeat (10) @(posedge sys_clk);
+	
 
 // SPI Driver Instances
 spi_driver #(.DATA_WIDTH(16)) north_driver (
@@ -167,6 +174,7 @@ spi_driver #(.DATA_WIDTH(16)) west_driver (
 Junction_MB_Top DUT (
 	.SYS_CLK					(sys_clk),						//	input
 	.SYS_RSTN					(sys_rstn),						//	input
+	.SYS_SOFT_RSTN				(sys_rstn),						//	input
 
 	.SCLK_NORTH					(north_spi.sclk),				//	input
 	.SS_N_NORTH					(north_spi.ssn),				//	input

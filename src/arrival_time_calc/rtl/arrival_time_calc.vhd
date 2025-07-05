@@ -39,11 +39,11 @@ architecture rtl of arrival_time_calc is
 				);
 				end component;
 				
-	signal	valid_delay	:	std_logic_vector(8 downto 0)		:=	(others => '0');
-	signal	carid_delay	:	stdarray(8 downto 0)(carid_in'range):=	(others => (others => '0'));
-	signal	speed		:	std_logic_vector(speed_in'range)	:=	(others => '0');
-	signal	power		:	unsigned(power_in'range)			:=	(others => '0');
-	signal	distance	:	std_logic_vector(7 downto 0)		:=	(others => '0');
+	signal	valid_delay	:	std_logic_vector(8 downto 0)			:=	(others => '0');
+	signal	carid_delay	:	stdarray(8 downto 0)(carid_in'range)	:=	(others => (others => '0'));
+	signal	speed		:	std_logic_vector(speed_in'range)		:=	(others => '0');
+	signal	power		:	unsigned(power_in'range)				:=	(others => '0');
+	signal	distance	:	std_logic_vector(7 downto 0)			:=	(others => '0');
 	signal	time_int	:	std_logic_vector(7 downto 0);
 	signal	time_frac	:	std_logic_vector(7 downto 0);
 	
@@ -76,16 +76,16 @@ begin
 		begin
 			if (rising_edge(app_clk)) then
 				
-				if (power <= 20) then
+				if (power <= 45) then
 					distance	<=	std_logic_vector(to_unsigned(0, distance'length));
-				elsif (power > 20 and power <= 30) then
-					distance	<=	std_logic_vector(to_unsigned(10, distance'length));
-				elsif (power > 30 and power <= 40) then
-					distance	<=	std_logic_vector(to_unsigned(20, distance'length));
-				elsif (power > 40 and power <= 45) then
+				elsif (power > 45 and power <= 55) then
 					distance	<=	std_logic_vector(to_unsigned(30, distance'length));
-				else
+				elsif (power > 55 and power <= 65) then
 					distance	<=	std_logic_vector(to_unsigned(40, distance'length));
+				elsif (power > 65 and power <= 75) then
+					distance	<=	std_logic_vector(to_unsigned(50, distance'length));
+				else
+					distance	<=	std_logic_vector(to_unsigned(60, distance'length));
 				end if;
 			end if;
 		end process;
