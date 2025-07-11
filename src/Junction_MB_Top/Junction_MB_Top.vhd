@@ -9,7 +9,6 @@ entity Junction_MB_Top is
 	port	(
 				SYS_CLK						:	in	std_logic;
 				SYS_RSTN					:	in	std_logic;
-				SYS_SOFT_RSTN				:	in	std_logic;
 
 				SCLK_NORTH					:	in	std_logic;
 				SS_N_NORTH					:	in	std_logic;
@@ -47,7 +46,7 @@ entity Junction_MB_Top is
 				TRAFFIC_LIGHT_YELLOW_WEST	:	out	std_logic;
 				TRAFFIC_LIGHT_GREEN_WEST	:	out	std_logic;
 				
-				USER_LEDS					:	out	std_logic_vector(3 downto 0)
+				USER_LEDS					:	out	std_logic_vector(1 downto 0)
 			);
 end entity Junction_MB_Top;
 
@@ -137,8 +136,8 @@ begin
 	
 	Clock_Generator_Inst: entity work.clock_generator
 		port map	(
-						hard_arst	=>	SYS_RSTN,			--:	in	std_logic;
-						soft_arst	=>	SYS_SOFT_RSTN,		--:	in	std_logic;
+						hard_arst	=>	'1',				--:	in	std_logic;
+						soft_arst	=>	SYS_RSTN,			--:	in	std_logic;
 						refclk		=>	SYS_CLK,			--:	in	std_logic;
 
 						locked		=>	main_pll_locked,	--:	out	std_logic;
@@ -392,18 +391,12 @@ main_controller_inst: entity work.main_controller
 
 
 
-	User_LEDs_Driver_p: process(main_pll_locked, reset_200, clk_200)
-	--	USER_LEDS[0] - red active high
-	--	USER_LEDS[1] - red active high
-	--	USER_LEDS[2] - green active low
-	--	USER_LEDS[3] - green active low
+	User_LEDs_Driver_p: process(main_pll_locked, clk_200)
 	begin
 		if (main_pll_locked = '0') then
-			USER_LEDS	<=	"1111";
-		elsif (reset_200 = '1') then
-			USER_LEDS	<=	"1100";
+			USER_LEDS	<=	"00";
 		elsif (rising_edge(clk_200)) then
-			USER_LEDS	<=	"0000";
+			USER_LEDS	<=	"11";
 		end if;
 	end process User_LEDs_Driver_p;
 end rtl;
