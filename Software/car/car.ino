@@ -3,7 +3,7 @@
 uint8_t EN_PIN = 9;
 
 // Wi-Fi credentials
-const char *ssid = "NorthTrafficLightAP";
+const char *ssid = "_TrafficLightAP";
 const char *password = "COGmvTFXNOvCcnIc79Z9OFFMIvOWLuNCQOdVlPDhHCp"; // 256-bit secure
 
 IPAddress server(192, 168, 4, 22);  // IP of server (e.g., ESP32 AP)
@@ -33,7 +33,7 @@ void connect_ap() {
 }
 
 int get_speed() {
-  return random(20, 150);
+  return 10;
 }
 
 void car() {

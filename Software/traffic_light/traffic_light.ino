@@ -21,7 +21,7 @@ void clear_buffer()
   memset(read_buffer, 0, BUFFER_SIZE); 
 }
 
-const char *ssid = "NorthTrafficLightAP";
+const char *ssid = "_TrafficLightAP";
 const char *password = "COGmvTFXNOvCcnIc79Z9OFFMIvOWLuNCQOdVlPDhHCp"; // 256-bit secure
 
 void wifi_setup()
