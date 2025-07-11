@@ -65,9 +65,13 @@ architecture rtl of main_controller is
 	signal	west_cars_num	:	unsigned(carid_bw-1 downto 0)	:=	(others => '0');
 
 	signal	set_north_green	:	std_logic						:=	'0';
-	signal	set_north_red	:	std_logic						:=	'0';
+	signal	set_north_red	:	std_logic						:=	'1';
 	signal	set_south_green	:	std_logic						:=	'0';
-	signal	set_south_red	:	std_logic						:=	'0';
+	signal	set_south_red	:	std_logic						:=	'1';
+	signal	set_east_green	:	std_logic						:=	'0';
+	signal	set_east_red	:	std_logic						:=	'1';
+	signal	set_west_green	:	std_logic						:=	'0';
+	signal	set_west_red	:	std_logic						:=	'1';
 
 	signal	one_sec_cntr	:	unsigned(10 downto 0)			:=	(others => '0');
 	signal	one_ms_cntr		:	unsigned(10 downto 0)			:=	(others => '0');
@@ -456,6 +460,12 @@ begin
 							set_south_red	<=	'1';
 						end if;
 					end if;
+					
+					set_east_green	<=	'0';
+					set_east_red	<=	'1';
+					set_west_green	<=	'0';
+					set_west_red	<=	'1';
+
 				elsif (south_priority = "1000") then
 					if (south_cars_num > 0) then
 						set_north_green	<=	'0';
@@ -484,11 +494,89 @@ begin
 							set_north_red	<=	'1';
 						end if;
 					end if;
+					
+					set_east_green	<=	'0';
+					set_east_red	<=	'1';
+					set_west_green	<=	'0';
+					set_west_red	<=	'1';
+					
+				elsif (east_priority = "1000") then
+					if (east_cars_num > 0) then
+						set_east_green	<=	'1';
+						set_east_red	<=	'0';
+						set_west_green	<=	'0';
+						set_west_red	<=	'1';
+					else
+						set_east_green	<=	'0';
+						set_east_red	<=	'1';
+					
+						if (east_traffic_light = TRAFFIC_LIGHT_RED) then	
+							if (west_priority = "0100") then
+								if (west_cars_num > 0) then
+									set_west_green	<=	'1';
+									set_west_red	<=	'0';
+								else
+									set_west_green	<=	'0';
+									set_west_red	<=	'1';
+								end if;
+							else
+								set_west_green	<=	'0';
+								set_west_red	<=	'1';
+							end if;
+						else
+							set_west_green	<=	'0';
+							set_west_red	<=	'1';
+						end if;
+					end if;
+					
+					set_north_green	<=	'0';
+					set_north_red	<=	'1';
+					set_south_green	<=	'0';
+					set_south_red	<=	'1';
+
+				elsif (west_priority = "1000") then
+					if (west_cars_num > 0) then
+						set_east_green	<=	'0';
+						set_east_red	<=	'1';
+						set_west_green	<=	'1';
+						set_west_red	<=	'0';
+					else
+						set_west_green	<=	'0';
+						set_west_red	<=	'1';
+					
+						if (west_traffic_light = TRAFFIC_LIGHT_RED) then	
+							if (east_priority = "0100") then
+								if (east_cars_num > 0) then
+									set_east_green	<=	'1';
+									set_east_red	<=	'0';
+								else
+									set_east_green	<=	'0';
+									set_east_red	<=	'1';
+								end if;
+							else
+								set_east_green	<=	'0';
+								set_east_red	<=	'1';
+							end if;
+						else
+							set_east_green	<=	'0';
+							set_east_red	<=	'1';
+						end if;
+					end if;
+					
+					set_north_green	<=	'0';
+					set_north_red	<=	'1';
+					set_south_green	<=	'0';
+					set_south_red	<=	'1';
+
 				else
 					set_north_green	<=	'0';
 					set_north_red	<=	'1';
 					set_south_green	<=	'0';
 					set_south_red	<=	'1';
+					set_east_green	<=	'0';
+					set_east_red	<=	'1';
+					set_west_green	<=	'0';
+					set_west_red	<=	'1';
 				end if;
 			end if;
 			
@@ -497,6 +585,10 @@ begin
 				set_north_red	<=	'1';
 				set_south_green	<=	'0';
 				set_south_red	<=	'1';
+				set_east_green	<=	'0';
+				set_east_red	<=	'1';
+				set_west_green	<=	'0';
+				set_west_red	<=	'1';
 			end if;
 		end process;
 	
@@ -531,8 +623,8 @@ begin
 						clk			=>	app_clk,				--:	in	std_logic;
 						rst			=>	app_rst,				--:	in	std_logic;
 						
-						set_green	=>	'0',					--:	in	std_logic;
-						set_red		=>	'1',					--:	in	std_logic;
+						set_green	=>	set_east_green,			--:	in	std_logic;
+						set_red		=>	set_east_red,			--:	in	std_logic;
 						
 						red			=>	east_traffic_light(0),	--:	out	std_logic;
 						yellow		=>	east_traffic_light(1),	--:	out	std_logic;
@@ -544,8 +636,8 @@ begin
 						clk			=>	app_clk,				--:	in	std_logic;
 						rst			=>	app_rst,				--:	in	std_logic;
 						
-						set_green	=>	'0',					--:	in	std_logic;
-						set_red		=>	'1',					--:	in	std_logic;
+						set_green	=>	set_west_green,			--:	in	std_logic;
+						set_red		=>	set_west_red,			--:	in	std_logic;
 						
 						red			=>	west_traffic_light(0),	--:	out	std_logic;
 						yellow		=>	west_traffic_light(1),	--:	out	std_logic;
